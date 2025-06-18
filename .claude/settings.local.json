@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -R)",
+      "Bash(mkdir backend/pic)",
+      "Bash(./start_services.sh)",
+      "Bash(lsof -i :8000)",
+      "Bash(lsof -i :5173)"
+    ],
+    "deny": []
+  }
+}

@@ -1,0 +1,319 @@
+\
+:root {
+  /* Color Palette */
+  --primary-color: #007bff; /* Vibrant Blue */
+  --primary-hover-color: #0056b3;
+  --secondary-color: #6c757d; /* Cool Gray */
+  --secondary-hover-color: #545b62;
+  --accent-color: #17a2b8; /* Teal */
+  --accent-hover-color: #117a8b;
+  
+  --text-color-primary: #212529; /* Dark Gray for main text */
+  --text-color-secondary: #495057; /* Lighter Gray for subtitles, secondary info */
+  --text-color-muted: #6c757d; /* Muted text */
+  --text-color-on-primary: #ffffff; /* Text on primary background */
+  --text-color-on-secondary: #ffffff; /* Text on secondary background */
+
+  --bg-color: #f8f9fa; /* Light Grayish Blue */
+  --surface-color: #ffffff; /* For cards, modals, etc. */
+  --border-color: #dee2e6; /* Subtle border color */
+  --input-border-color: #ced4da;
+  --input-focus-border-color: var(--primary-color);
+  --input-focus-box-shadow: rgba(0, 123, 255, 0.25);
+
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+
+  /* Typography */
+  --font-family-sans-serif: -apple-system, BlinkMacSystemFont, \'Segoe UI\', \'Roboto\', \'Oxygen\',
+    \'Ubuntu\', \'Cantarell\', \'Fira Sans\', \'Droid Sans\', \'Helvetica Neue\',
+    sans-serif;
+  --font-family-monospace: source-code-pro, Menlo, Monaco, Consolas, \'Courier New\',
+    monospace;
+  --font-size-base: 1rem; /* 16px */
+  --line-height-base: 1.6;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+
+  /* Borders */
+  --border-radius-sm: 0.2rem;
+  --border-radius-md: 0.375rem; /* Bootstrap\'s default is 0.25rem, slightly more rounded */
+  --border-radius-lg: 0.5rem;
+  --border-width: 1px;
+
+  /* Shadows */
+  --box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --box-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+
+  /* Transitions */
+  --transition-base: all 0.2s ease-in-out;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--font-size-base);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-sans-serif);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--text-color-primary);
+  background-color: var(--bg-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease; /* For potential dark mode */
+}
+
+code, pre {
+  font-family: var(--font-family-monospace);
+  font-size: 0.9em; /* Slightly smaller for code blocks if preferred */
+  background-color: inherit; /* Light background for inline code/pre */
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+}
+
+pre {
+  padding: var(--spacing-md);
+  overflow-x: auto;
+  border: var(--border-width) solid var(--border-color);
+}
+
+/* Global Container (optional, similar to .app-container but using vars) */
+.container {
+  width: 100%;
+  max-width: 1140px; /* Common max-width */
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: var(--spacing-md);
+  padding-left: var(--spacing-md);
+}
+
+/* Card Styling */
+.card {
+  background-color: var(--surface-color);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-lg); /* More pronounced rounding */
+  box-shadow: var(--box-shadow-md); /* Softer, more modern shadow */
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Added transition for hover */
+}
+
+.card:hover {
+  transform: translateY(-4px); /* Slight lift effect */
+  box-shadow: var(--box-shadow-lg); /* Larger shadow on hover for depth */
+}
+
+/* General Button Styling */
+.button {
+  display: inline-flex; /* Align icon and text nicely */
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  line-height: var(--line-height-base);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--border-radius-md);
+  transition: var(--transition-base);
+}
+
+.button:not(:disabled):not(.disabled) {
+  cursor: pointer;
+}
+
+.button:hover {
+  filter: brightness(90%);
+}
+
+.button:active {
+  filter: brightness(80%);
+  transform: translateY(1px); /* Subtle press effect */
+}
+
+.button:focus, .button:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem var(--input-focus-box-shadow);
+}
+
+.button:disabled, .button.disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Primary Button */
+.button-primary {
+  color: var(--text-color-on-primary);
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+.button-primary:hover {
+  background-color: var(--primary-hover-color);
+  border-color: var(--primary-hover-color);
+  filter: none;
+}
+
+/* Secondary Button */
+.button-secondary {
+  color: var(--text-color-on-secondary);
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+.button-secondary:hover {
+  background-color: var(--secondary-hover-color);
+  border-color: var(--secondary-hover-color);
+  filter: none;
+}
+
+/* Add Button (can inherit from primary or secondary or have unique style) */
+.button-add {
+  /* For now, let\'s make it accent based */
+  color: var(--text-color-on-primary); /* Assuming accent is dark enough */
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+.button-add:hover {
+  background-color: var(--accent-hover-color);
+  border-color: var(--accent-hover-color);
+  filter: brightness(110%); /* Slightly lighten on hover */
+  box-shadow: var(--box-shadow-sm);
+}
+.button-add:active {
+  background-color: var(--accent-hover-color);
+  filter: brightness(90%);
+  transform: translateY(1px);
+  box-shadow: none;
+}
+.button-add.button-text { /* Specific styling for "Add Text" etc. if needed */ }
+.button-add.button-code { }
+.button-add.button-image { }
+
+
+/* Generate Button */
+.button-generate { /* Often a prominent call to action */
+  color: var(--text-color-on-primary);
+  background-color: var(--success-color); /* Using success color for generation */
+  border-color: var(--success-color);
+  padding: var(--spacing-md) var(--spacing-xl); /* Make it larger */
+  font-size: 1.1rem;
+}
+.button-generate:hover {
+  background-color: #1e7e34; /* Darker success */
+  border-color: #1e7e34;
+  filter: brightness(110%); /* Slightly lighten on hover */
+  box-shadow: var(--box-shadow-sm);
+}
+.button-generate:active {
+  background-color: #1c7430; /* Even darker for active */
+  filter: brightness(90%);
+  transform: translateY(2px); /* Slightly more press */
+  box-shadow: none;
+}
+
+
+/* Basic Form Input/Textarea/Select Styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  line-height: var(--line-height-base);
+  color: var(--text-color-primary);
+  background-color: var(--surface-color);
+  background-clip: padding-box;
+  border: var(--border-width) solid var(--input-border-color);
+  appearance: none; /* Removes default system styling */
+  border-radius: var(--border-radius-md);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  margin-bottom: var(--spacing-sm); /* Default spacing */
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+  color: var(--text-color-primary);
+  background-color: var(--surface-color);
+  border-color: var(--input-focus-border-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem var(--input-focus-box-shadow);
+}
+
+/* Placeholder text styling */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-color-muted);
+  opacity: 1; /* Firefox fix */
+}
+
+/* Select specific styling for arrow */
+select {
+  padding-right: var(--spacing-xxl); /* Space for the arrow */
+  background-image: url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3e%3cpath fill=\'none\' stroke=\'%23343a40\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'m2 5 6 6 6-6\'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-md) center;
+  background-size: 16px 12px;
+}
+select:disabled {
+  background-color: #e9ecef; /* Slightly different disabled bg */
+}
+
+/* Remove default focus styles for links, rely on custom if needed */
+a:focus {
+  outline: none;
+}
+a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Screen-reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,20 @@
+
+> make-page-frontend@0.0.0 dev
+> vite
+
+9:56:19 PM [vite] (client) Re-optimizing dependencies because vite config has changed
+Port 5173 is in use, trying another one...
+
+  VITE v6.3.5  ready in 180 ms
+
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: use --host to expose
+Error: The following dependencies are imported but could not be resolved:
+
+  @ant-design/icons (imported by /Users/john/private/agent/make_page/frontend/src/components/ContentBlockInput.jsx)
+  antd (imported by /Users/john/private/agent/make_page/frontend/src/components/LLMSelector.jsx)
+
+Are they installed?
+    at file:///Users/john/private/agent/make_page/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:14849:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///Users/john/private/agent/make_page/frontend/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:46985:28
