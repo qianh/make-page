@@ -39,6 +39,8 @@ class OutputPreferences(BaseModel):
     desired_length: Optional[str] = "medium"
     language: Optional[str] = "en"  # Language code (e.g., 'en', 'zh', 'es')
     style: Optional[str] = "professional"  # Writing style
+    min_word_count: Optional[int] = None  # Minimum word count
+    max_word_count: Optional[int] = None  # Maximum word count
 
 class GenerationRequest(BaseModel):
     user_input: UserInput

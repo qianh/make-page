@@ -32,7 +32,7 @@ const ContentBlockInput = ({ block, index, updateBlock, removeBlock }) => {
       updateBlock(index, { ...block, image_path: result.file_path });
       message.success(`${file.name} file uploaded successfully.`);
       return Promise.resolve();
-    } catch (error) {
+    } catch {
       message.error(`${file.name} file upload failed.`);
       return Promise.reject();
     }

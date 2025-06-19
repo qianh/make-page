@@ -84,15 +84,19 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
 
         api_call_parts: List[Union[str, Image.Image]] = []
         
-        # Get language and style preferences
+        # Get language, style, and word count preferences
         language = "zh"  # Default to Chinese
         style = "professional"  # Default style
+        min_word_count = None
+        max_word_count = None
         
         if output_preferences:
             # Convert Pydantic model to dict if needed
             prefs_dict = output_preferences.model_dump() if hasattr(output_preferences, 'model_dump') else output_preferences
             language = prefs_dict.get("language", "zh")
             style = prefs_dict.get("style", "professional")
+            min_word_count = prefs_dict.get("min_word_count")
+            max_word_count = prefs_dict.get("max_word_count")
         
         # Language-specific instructions
         language_instructions = {
@@ -123,6 +127,15 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
         language_instruction = language_instructions.get(language, language_instructions["zh"])
         style_instruction = style_instructions.get(style, style_instructions["professional"])
         
+        # Word count instruction
+        word_count_instruction = ""
+        if min_word_count and max_word_count:
+            word_count_instruction = f"- **Word Count**: The article should be between {min_word_count} and {max_word_count} words.\n"
+        elif min_word_count:
+            word_count_instruction = f"- **Word Count**: The article should be at least {min_word_count} words.\n"
+        elif max_word_count:
+            word_count_instruction = f"- **Word Count**: The article should be no more than {max_word_count} words.\n"
+        
         system_prompt_text = (
              "You are an expert article writer and content strategist. "
              "Your primary task is to take the following user-provided content blocks (which may include text, code snippets, and actual image data) "
@@ -134,7 +147,8 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
              "- **Content Integration**: Seamlessly integrate the provided text, expand on ideas, explain code snippets contextually, and incorporate images by referring to them or describing their relevance. Do not try to re-render images as Markdown image tags unless explicitly asked.\n"
              "- **Structure and Flow**: Ensure the article is well-organized with appropriate headings (H2, H3, etc.), paragraphs, lists, and other Markdown elements to enhance readability.\n"
              f"- **Language**: {language_instruction}\n"
-             f"- **Writing Style**: {style_instruction}\n\n"
+             f"- **Writing Style**: {style_instruction}\n"
+             f"{word_count_instruction}"
              "The user's content blocks (text, code, and image data if provided) are given below. Process them to build the article:\n"
              "---"
         )

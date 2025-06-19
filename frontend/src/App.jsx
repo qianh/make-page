@@ -22,6 +22,7 @@ function App() {
   const [selectedLlm, setSelectedLlm] = useState({ provider: '', model_name: '' });
   const [selectedLanguage, setSelectedLanguage] = useState('zh');
   const [selectedStyle, setSelectedStyle] = useState('professional');
+  const [wordCountRange, setWordCountRange] = useState({ min: null, max: null });
   const [isLoading, setIsLoading] = useState(false);
   const [generatedArticle, setGeneratedArticle] = useState(null);
   const [isLlmSelectionValid, setIsLlmSelectionValid] = useState(false);
@@ -65,6 +66,10 @@ function App() {
     setSelectedStyle(style);
   }, []);
 
+  const handleWordCountChange = useCallback((range) => {
+    setWordCountRange(range);
+  }, []);
+
   const handleGenerate = async () => {
     if (!isLlmSelectionValid) {
       message.error("Please select an AI provider and model first.");
@@ -90,13 +95,15 @@ function App() {
     
     const requestPayload = {
       user_input: {
-        blocks: blocks.map(({ id, ...blockData }) => blockData),
+        blocks: blocks.map(({ id, ...blockData }) => blockData), // eslint-disable-line no-unused-vars
       },
       llm_selection: selectedLlm,
       output_preferences: { 
         desired_length: "medium",
         language: selectedLanguage,
-        style: selectedStyle
+        style: selectedStyle,
+        min_word_count: wordCountRange.min,
+        max_word_count: wordCountRange.max
       }
     };
 
@@ -178,6 +185,8 @@ function App() {
                 selectedStyle={selectedStyle}
                 onLanguageChange={handleLanguageChange}
                 onStyleChange={handleStyleChange}
+                wordCountRange={wordCountRange}
+                onWordCountChange={handleWordCountChange}
               />
             </Col>
 
