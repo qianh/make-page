@@ -32,27 +32,20 @@ HARDCODED_AVAILABLE_LLMS = AvailableLLMsResponse(
     providers=[
         LLMProviderInfo(
             provider_id="google",
-            display_name="Google AI",
+            display_name="谷歌 AI",
             models=[
                 LLMModelInfo(
-                    model_id="gemini-2.5-flash-preview-05-20",
-                    display_name="Gemini 2.5 Flash Preview (05-20)",
-                    capabilities=ModelCapability(supports_images=True, max_input_tokens=2000000, max_output_tokens=8192, notes="Optimized for speed and high-volume tasks."),
-                    description="Google\'s latest generation fast and versatile multimodal preview model.",
+                    model_id="gemini-2.5-flash",
+                    display_name="Gemini 2.5 Flash",
+                    capabilities=ModelCapability(supports_images=True, max_input_tokens=1000000, max_output_tokens=8192, notes="最佳性价比，具备思维能力，比之前版本效率提升20-30%。"),
+                    description="谷歌最高效的多模态模型，具备先进的推理和思维能力，支持原生音频、视频理解和工具集成。",
                     provider_id="google"
                 ),
                 LLMModelInfo(
-                    model_id="gemini-2.5-pro-preview-05-06",
-                    display_name="Gemini 2.5 Pro Preview (05-06)",
-                    capabilities=ModelCapability(supports_images=True, max_input_tokens=2000000, max_output_tokens=8192, notes="Advanced reasoning for complex tasks."),
-                    description="Google\'s latest generation capable multimodal preview model.",
-                    provider_id="google"
-                ),
-                LLMModelInfo(
-                    model_id="gemini-2.5-pro-preview-06-05",
-                    display_name="Gemini 2.5 Pro Preview (06-05)",
-                    capabilities=ModelCapability(supports_images=True, max_input_tokens=2000000, max_output_tokens=8192, notes="Advanced reasoning for complex tasks, potentially with latest updates."),
-                    description="Google\'s latest generation capable multimodal preview model (newer revision).",
+                    model_id="gemini-2.5-pro",
+                    display_name="Gemini 2.5 Pro",
+                    capabilities=ModelCapability(supports_images=True, max_input_tokens=1000000, max_output_tokens=8192, notes="高级推理模型，具备深度思考模式，在编程、数学和科学基准测试中表现领先。"),
+                    description="谷歌最先进的推理模型，具备思维能力，在复杂问题解决、编程、数学和多模态理解方面表现出色。",
                     provider_id="google"
                 ),
             ]
@@ -64,22 +57,22 @@ HARDCODED_AVAILABLE_LLMS = AvailableLLMsResponse(
                 LLMModelInfo(
                     model_id="claude-3-opus-20240229",
                     display_name="Claude 3 Opus",
-                    capabilities=ModelCapability(supports_images=True, max_input_tokens=200000, max_output_tokens=4096, notes="Top-tier reasoning, good for complex analysis."),
-                    description="Anthropic's most powerful model.",
+                    capabilities=ModelCapability(supports_images=True, max_input_tokens=200000, max_output_tokens=4096, notes="顶级推理能力，适合复杂分析任务。"),
+                    description="Anthropic 最强大的模型。",
                     provider_id="anthropic"
                 ),
                 LLMModelInfo(
                     model_id="claude-3-sonnet-20240229",
                     display_name="Claude 3 Sonnet",
-                    capabilities=ModelCapability(supports_images=True, max_input_tokens=200000, max_output_tokens=4096, notes="Balanced speed and intelligence."),
-                    description="A balanced model from Anthropic, good for enterprise workloads.",
+                    capabilities=ModelCapability(supports_images=True, max_input_tokens=200000, max_output_tokens=4096, notes="平衡速度和智能。"),
+                    description="Anthropic 的平衡型模型，适合企业工作负载。",
                     provider_id="anthropic"
                 ),
                 LLMModelInfo(
                     model_id="claude-3-haiku-20240307",
                     display_name="Claude 3 Haiku",
-                    capabilities=ModelCapability(supports_images=True, max_input_tokens=200000, max_output_tokens=4096, notes="Fastest and most compact for near-instant responsiveness."),
-                    description="Anthropic's fastest model, ideal for real-time interactions.",
+                    capabilities=ModelCapability(supports_images=True, max_input_tokens=200000, max_output_tokens=4096, notes="最快且最紧凑，近乎即时响应。"),
+                    description="Anthropic 最快的模型，适合实时交互。",
                     provider_id="anthropic"
                 ),
             ]
@@ -91,22 +84,22 @@ HARDCODED_AVAILABLE_LLMS = AvailableLLMsResponse(
                 LLMModelInfo(
                     model_id="gpt-4o-mini",
                     display_name="GPT-4o mini",
-                    capabilities=ModelCapability(supports_images=True, max_input_tokens=128000, max_output_tokens=16385, notes="OpenAI's latest, most affordable and intelligent small model."),
-                    description="Successor to GPT-3.5 Turbo, highly intelligent small model.",
+                    capabilities=ModelCapability(supports_images=True, max_input_tokens=128000, max_output_tokens=16385, notes="OpenAI 最新、最经济实惠且智能的小型模型。"),
+                    description="GPT-3.5 Turbo 的继任者，高智能小型模型。",
                     provider_id="openai"
                 ),
                 LLMModelInfo(
                     model_id="gpt-4o",
                     display_name="GPT-4o",
-                    capabilities=ModelCapability(supports_images=True, max_input_tokens=128000, max_output_tokens=4096, notes="OpenAI's most advanced multimodal model."),
-                    description="OpenAI's flagship model, combining text and vision capabilities.",
+                    capabilities=ModelCapability(supports_images=True, max_input_tokens=128000, max_output_tokens=4096, notes="OpenAI 最先进的多模态模型。"),
+                    description="OpenAI 的旗舰模型，结合文本和视觉能力。",
                     provider_id="openai"
                 ),
                 LLMModelInfo(
                     model_id="gpt-3.5-turbo",
                     display_name="GPT-3.5 Turbo",
                     capabilities=ModelCapability(supports_images=False, max_input_tokens=16385, max_output_tokens=4096),
-                    description="A fast and capable model for text-based tasks.",
+                    description="快速且能力强的文本任务模型。",
                     provider_id="openai"
                 ),
             ]

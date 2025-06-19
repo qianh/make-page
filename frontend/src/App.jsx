@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ContentBlockInput from './components/ContentBlockInput';
 import LLMSelector from './components/LLMSelector';
+import LanguageSelector from './components/LanguageSelector';
 import './index.css'; // Global base styles
 
 import {
@@ -19,6 +20,8 @@ const generateId = () => crypto.randomUUID();
 function App() {
   const [blocks, setBlocks] = useState([]);
   const [selectedLlm, setSelectedLlm] = useState({ provider: '', model_name: '' });
+  const [selectedLanguage, setSelectedLanguage] = useState('zh');
+  const [selectedStyle, setSelectedStyle] = useState('professional');
   const [isLoading, setIsLoading] = useState(false);
   const [generatedArticle, setGeneratedArticle] = useState(null);
   const [isLlmSelectionValid, setIsLlmSelectionValid] = useState(false);
@@ -54,6 +57,14 @@ function App() {
     setSelectedLlm(newSelection);
   }, []);
 
+  const handleLanguageChange = useCallback((language) => {
+    setSelectedLanguage(language);
+  }, []);
+
+  const handleStyleChange = useCallback((style) => {
+    setSelectedStyle(style);
+  }, []);
+
   const handleGenerate = async () => {
     if (!isLlmSelectionValid) {
       message.error("Please select an AI provider and model first.");
@@ -82,7 +93,11 @@ function App() {
         blocks: blocks.map(({ id, ...blockData }) => blockData),
       },
       llm_selection: selectedLlm,
-      output_preferences: { desired_length: "medium" }
+      output_preferences: { 
+        desired_length: "medium",
+        language: selectedLanguage,
+        style: selectedStyle
+      }
     };
 
     try {
@@ -157,6 +172,12 @@ function App() {
                 selectedLlm={selectedLlm}
                 onLlmChange={handleLlmChange}
                 currentBlocks={blocks}
+              />
+              <LanguageSelector
+                selectedLanguage={selectedLanguage}
+                selectedStyle={selectedStyle}
+                onLanguageChange={handleLanguageChange}
+                onStyleChange={handleStyleChange}
               />
             </Col>
 

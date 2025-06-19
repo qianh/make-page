@@ -35,10 +35,15 @@ class LLMSelection(BaseModel):
 
 # --- Request and Response Models for the API ---
 
+class OutputPreferences(BaseModel):
+    desired_length: Optional[str] = "medium"
+    language: Optional[str] = "en"  # Language code (e.g., 'en', 'zh', 'es')
+    style: Optional[str] = "professional"  # Writing style
+
 class GenerationRequest(BaseModel):
     user_input: UserInput
     llm_selection: LLMSelection
-    output_preferences: Optional[dict] = None
+    output_preferences: Optional[OutputPreferences] = None
 
 class GeneratedContent(BaseModel):
     title: str

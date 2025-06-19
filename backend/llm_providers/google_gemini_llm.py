@@ -16,10 +16,7 @@ from schemas import UserInput, LLMSelection, GeneratedContent
 # Helper to determine if a model (by its ID from our hardcoded list) supports images.
 def model_supports_images_lookup(model_id: str) -> bool:
     image_supporting_models = [
-        "gemini-1.5-flash-latest", "gemini-1.5-pro-latest",
-        "gemini-2.5-flash-preview-05-20", "gemini-2.5-pro-preview-05-06", "gemini-2.5-pro-preview-06-05",
-        "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307",
-        "gpt-4o-mini", "gpt-4o"
+        "gemini-2.5-flash", "gemini-2.5-pro"
     ]
     return model_id in image_supporting_models
 
@@ -82,6 +79,44 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
         print(f"INFO: Model {llm_selection.model_name} selected. Determined image support: {current_model_supports_images}")
 
         api_call_parts: List[Union[str, Image.Image]] = []
+        
+        # Get language and style preferences
+        language = "zh"  # Default to Chinese
+        style = "professional"  # Default style
+        
+        if output_preferences:
+            language = output_preferences.get("language", "zh")
+            style = output_preferences.get("style", "professional")
+        
+        # Language-specific instructions
+        language_instructions = {
+            "en": "Write the entire article in English.",
+            "zh": "请用中文写整篇文章。",
+            "es": "Escribe todo el artículo en español.",
+            "fr": "Rédigez tout l'article en français.",
+            "de": "Schreiben Sie den gesamten Artikel auf Deutsch.",
+            "ja": "記事全体を日本語で書いてください。",
+            "ko": "전체 기사를 한국어로 작성하세요.",
+            "pt": "Escreva todo o artigo em português.",
+            "ru": "Напишите всю статью на русском языке.",
+            "ar": "اكتب المقال بالكامل باللغة العربية."
+        }
+        
+        # Style-specific instructions
+        style_instructions = {
+            "formal": "Maintain a formal and authoritative tone throughout.",
+            "casual": "Use a casual, friendly, and conversational tone.",
+            "academic": "Write in an academic style with proper citations and scholarly language.",
+            "conversational": "Write as if you're having a conversation with the reader.",
+            "professional": "Use a professional, business-appropriate tone.",
+            "creative": "Use creative language and engaging storytelling techniques.",
+            "technical": "Focus on technical accuracy and detailed explanations.",
+            "journalistic": "Write in a journalistic style with facts and balanced reporting."
+        }
+        
+        language_instruction = language_instructions.get(language, language_instructions["zh"])
+        style_instruction = style_instructions.get(style, style_instructions["professional"])
+        
         system_prompt_text = (
              "You are an expert article writer and content strategist. "
              "Your primary task is to take the following user-provided content blocks (which may include text, code snippets, and actual image data) "
@@ -92,8 +127,8 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
              "- **Output Format**: The entire response, starting with the H1 title, must be in well-formatted Markdown.\n"
              "- **Content Integration**: Seamlessly integrate the provided text, expand on ideas, explain code snippets contextually, and incorporate images by referring to them or describing their relevance. Do not try to re-render images as Markdown image tags unless explicitly asked.\n"
              "- **Structure and Flow**: Ensure the article is well-organized with appropriate headings (H2, H3, etc.), paragraphs, lists, and other Markdown elements to enhance readability.\n"
-             "- **Tone and Style**: Maintain a professional and informative tone unless specified otherwise by output preferences.\n"
-             "- **默认语言**: 除非用户的输出偏好中明确指定了其他语言，否则所有内容都应以中文输出。\n\n"
+             f"- **Language**: {language_instruction}\n"
+             f"- **Writing Style**: {style_instruction}\n\n"
              "The user's content blocks (text, code, and image data if provided) are given below. Process them to build the article:\n"
              "---"
         )
