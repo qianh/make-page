@@ -16,6 +16,11 @@ echo "Attempting to start backend service..."
 echo "Navigating to $BACKEND_DIR"
 cd "$BACKEND_DIR" || { echo "Failed to navigate to backend directory"; exit 1; }
 
+# Install backend dependencies
+echo "Installing backend dependencies with uv..."
+uv venv --allow-existing || { echo "Failed to create virtual environment"; exit 1; }
+uv pip install fastapi uvicorn[standard] pydantic python-multipart google-generativeai httpx pillow markdown-it-py || { echo "Failed to install backend dependencies"; exit 1; }
+
 # Assuming GOOGLE_API_KEY is already set globally by the user, as per user instruction.
 # If not, it should be exported here or before running the script.
 # Example: export GOOGLE_API_KEY="YOUR_ACTUAL_KEY_HERE"
@@ -36,7 +41,7 @@ echo "Waiting a few seconds for backend to initialize..."
 sleep 8 # Increased sleep to allow server to fully start or log error
 
 # Check if backend is actually running by looking for listen on port 8000
-if ! lsof -i :8000 -sTCP:LISTEN -P -t > /dev/null; then
+if ! lsof -i :8000 > /dev/null 2>&1; then
     echo "ERROR: Backend service (PID $BACKEND_PID) does not seem to be listening on port 8000."
     echo "Please check the log: $BACKEND_LOG"
     # Clean up PID file if service failed
@@ -51,6 +56,10 @@ echo ""
 echo "Attempting to start frontend service..."
 echo "Navigating to $FRONTEND_DIR"
 cd "$FRONTEND_DIR" || { echo "Failed to navigate to frontend directory"; exit 1; }
+
+# Install frontend dependencies
+echo "Installing frontend dependencies with npm..."
+npm install || { echo "Failed to install frontend dependencies"; exit 1; }
 
 echo "Starting Vite dev server for frontend..."
 npm run dev > "$FRONTEND_LOG" 2>&1 &
@@ -71,7 +80,7 @@ sleep 8 # Increased sleep for Vite to start
 
 # Check if frontend is actually running by looking for listen on port 5173 (default Vite port)
 # Note: Vite might pick another port if 5173 is busy. This check is basic.
-if ! lsof -i :5173 -sTCP:LISTEN -P -t > /dev/null; then
+if ! lsof -i :5173 > /dev/null 2>&1; then
     echo "WARNING: Frontend service (PID $FRONTEND_PID) does not seem to be listening on port 5173."
     echo "It might be on another port or failed to start. Please check the log: $FRONTEND_LOG"
 else
