@@ -183,9 +183,9 @@ function App() {
 
             <Col xs={24} lg={16} xl={17}>
               <Card 
-                bordered={false}
+                variant="filled"
                 style={{ borderRadius: 16, boxShadow: '0 12px 28px rgba(0,0,0,0.06)', height: '100%' }}
-                bodyStyle={{padding: 0}} // Control padding internally
+                styles={{body: {padding: 0}}} // Control padding internally
               >
                 <div style={{padding: 24, borderBottom: '1px solid rgba(0,0,0,0.06)'}}>
                     <Row justify="space-between" align="middle">
@@ -205,7 +205,7 @@ function App() {
                   {blocks.length === 0 ? (
                     <Empty
                       image={<BulbOutlined style={{ fontSize: 72, color: '#007aff' }} />}
-                      imageStyle={{ height: 100, marginBottom: 24}}
+                      styles={{image: { height: 100, marginBottom: 24}}}
                       description={
                         <Space direction="vertical" align="center">
                           <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>Canvas is Empty</Title>
@@ -244,7 +244,7 @@ function App() {
                 ) : (
                   <Card 
                     title={<Title level={4} style={{marginBottom:0, fontWeight: 600}}>Generated Article: <Text style={{fontWeight: 400, color: 'rgba(0,0,0,0.6)'}}>{generatedArticle.title}</Text></Title>}
-                    bordered={false}
+                    variant="filled"
                     style={{ borderRadius: 16, boxShadow: '0 12px 28px rgba(0,0,0,0.06)', marginTop: 24 }}
                   >
                     <Tabs defaultActiveKey="1" centered type="card" tabBarGutter={8}>

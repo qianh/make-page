@@ -91,8 +91,10 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
 
   if (loading) {
     return (
-      <Card bordered={false} style={{ textAlign: 'center', boxShadow: 'none', background: 'transparent' }}>
-        <Spin tip="Loading AI Models..." size="large" />
+      <Card variant="filled" style={{ textAlign: 'center', boxShadow: 'none', background: 'transparent' }}>
+        <Spin size="large">
+          <div style={{ padding: 20 }}>Loading AI Models...</div>
+        </Spin>
       </Card>
     );
   }
@@ -124,7 +126,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
   return (
     <Card 
       title={<Title level={4} style={{marginBottom: 0, fontWeight: 600}}>Configure AI Model</Title>} 
-      bordered={false} 
+      variant="filled" 
       style={{ borderRadius: 16, boxShadow: '0 8px 24px rgba(0,0,0,0.05)' }}
     >
       <Form layout="vertical">
@@ -174,11 +176,11 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
       {currentModelDetails && (
         <Card 
           title={<Text style={{fontWeight: 500}}>{currentModelDetails.display_name} Capabilities</Text>} 
-          bordered={false} 
+          variant="filled" 
           size="small" 
           style={{ marginTop: 20, background: 'rgba(0,0,0,0.02)', borderRadius: 12 }}
         >
-          <Descriptions bordered column={1} size="small" labelStyle={{fontWeight: 500}}>
+          <Descriptions bordered column={1} size="small" styles={{label: {fontWeight: 500}}}>
             <Descriptions.Item label="Supports Images">
               {currentModelDetails.capabilities.supports_images ? 
                 <Text style={{color: '#52c41a'}}>Yes</Text> : 

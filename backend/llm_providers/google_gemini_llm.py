@@ -11,7 +11,7 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold # For saf
 from markdown_it import MarkdownIt # For Markdown to HTML conversion
 
 from .base_llm import BaseLLMProvider
-from schemas import UserInput, LLMSelection, GeneratedContent
+from schemas import UserInput, LLMSelection, GeneratedContent, OutputPreferences
 
 # Helper to determine if a model (by its ID from our hardcoded list) supports images.
 def model_supports_images_lookup(model_id: str) -> bool:
@@ -29,7 +29,11 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
             print("WARNING: GOOGLE_API_KEY environment variable not found. GoogleGeminiLLMProvider will not be functional.")
         else:
             try:
-                genai.configure(api_key=api_key)
+                genai.configure(
+                    api_key=api_key,
+                    transport="rest",
+                    client_options={"api_endpoint": "https://gateway.ai.cloudflare.com/v1/60bce5651af4949a5209ff4fc10a1cfd/hong-gemini/google-ai-studio"}
+                )
                 print("INFO: Google Generative AI SDK configured successfully.")
                 self.api_key_configured = True
             except Exception as e:
@@ -64,7 +68,7 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
         self,
         user_input: UserInput,
         llm_selection: LLMSelection,
-        output_preferences: Optional[Dict] = None
+        output_preferences: Optional[OutputPreferences] = None
     ) -> GeneratedContent:
         if not self.api_key_configured:
             error_message = "The Google Gemini LLM provider is not configured because the GOOGLE_API_KEY is missing or invalid."
@@ -85,8 +89,10 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
         style = "professional"  # Default style
         
         if output_preferences:
-            language = output_preferences.get("language", "zh")
-            style = output_preferences.get("style", "professional")
+            # Convert Pydantic model to dict if needed
+            prefs_dict = output_preferences.model_dump() if hasattr(output_preferences, 'model_dump') else output_preferences
+            language = prefs_dict.get("language", "zh")
+            style = prefs_dict.get("style", "professional")
         
         # Language-specific instructions
         language_instructions = {
@@ -141,7 +147,7 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
         if current_model_supports_images:
             for i, block in enumerate(user_input.blocks):
                 if block.type == "image":
-                    image_blocks_to_fetch.append({"index": i, "url": str(block.url), "block_ref": block})
+                    image_blocks_to_fetch.append({"index": i, "url": str(block.image_path), "block_ref": block})
         
         fetched_image_objects: Dict[int, Optional[Image.Image]] = {}
         if image_blocks_to_fetch:
@@ -176,13 +182,15 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
                     reason = "fetch failed or image is invalid" if current_model_supports_images else "model does not support image input"
                     api_call_parts.append(
                         f"Image Placeholder ({reason}):\n"
-                        f"[URL: {block.url}, Alt Text: '{block.alt_text or 'N/A'}', Caption: '{block.caption or 'N/A'}]\n"
+                        f"[URL: {block.image_path}, Alt Text: '{block.alt_text or 'N/A'}', Caption: '{block.caption or 'N/A'}]\n"
                         "(Task: Describe this image or integrate its theme/caption naturally into the article based on this textual information.)"
                     )
         
         if output_preferences:
             api_call_parts.append("\n\n--- Output Preferences from User ---")
-            for key, value in output_preferences.items():
+            # Convert Pydantic model to dict if needed
+            prefs_dict = output_preferences.model_dump() if hasattr(output_preferences, 'model_dump') else output_preferences
+            for key, value in prefs_dict.items():
                 api_call_parts.append(f"- {key.replace('_', ' ').capitalize()}: {value}")
             api_call_parts.append("Please try to adhere to these preferences when crafting the article.")
 
@@ -209,10 +217,14 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
             }
 
             print(f"INFO: Sending request to Gemini API model {llm_selection.model_name}...")
-            response = await model.generate_content_async(
-                api_call_parts,
-                generation_config=generation_config,
-                safety_settings=safety_settings
+            import asyncio
+            response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: model.generate_content(
+                    api_call_parts,
+                    generation_config=generation_config,
+                    safety_settings=safety_settings
+                )
             )
             print("INFO: Received response from Gemini API.")
 

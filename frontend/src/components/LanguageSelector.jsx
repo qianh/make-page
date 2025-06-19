@@ -40,7 +40,7 @@ function LanguageSelector({ selectedLanguage, selectedStyle, onLanguageChange, o
           </Title>
         </Space>
       }
-      bordered={false}
+      variant="borderless"
       style={{ 
         borderRadius: 16, 
         boxShadow: '0 12px 28px rgba(0,0,0,0.06)',
