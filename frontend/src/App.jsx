@@ -4,6 +4,7 @@ import LLMSelector from './components/LLMSelector';
 import LanguageSelector from './components/LanguageSelector';
 import EditableOutput from './components/EditableOutput';
 import ObsidianImporter from './components/ObsidianImporter';
+import FusionDegreeSelector from './components/FusionDegreeSelector';
 import './index.css'; // Global base styles
 
 import {
@@ -25,6 +26,8 @@ function App() {
   const [selectedStyle, setSelectedStyle] = useState('professional');
   const [selectedHtmlStyle, setSelectedHtmlStyle] = useState('modern');
   const [wordCountRange, setWordCountRange] = useState({ min: null, max: null });
+  const [fusionDegree, setFusionDegree] = useState('medium');
+  const [enableSvgOutput, setEnableSvgOutput] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedArticle, setGeneratedArticle] = useState(null);
   const [isLlmSelectionValid, setIsLlmSelectionValid] = useState(false);
@@ -118,7 +121,9 @@ function App() {
         language: selectedLanguage,
         style: selectedStyle,
         min_word_count: wordCountRange.min,
-        max_word_count: wordCountRange.max
+        max_word_count: wordCountRange.max,
+        fusion_degree: fusionDegree,
+        enable_svg_output: enableSvgOutput
       }
     };
 
@@ -199,6 +204,12 @@ function App() {
                 onWordCountChange={handleWordCountChange}
                 selectedHtmlStyle={selectedHtmlStyle}
                 onHtmlStyleChange={handleHtmlStyleChange}
+              />
+              <FusionDegreeSelector
+                fusionDegree={fusionDegree}
+                onFusionDegreeChange={setFusionDegree}
+                enableSvgOutput={enableSvgOutput}
+                onSvgOutputChange={setEnableSvgOutput}
               />
             </Col>
 

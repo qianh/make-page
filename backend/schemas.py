@@ -41,6 +41,8 @@ class OutputPreferences(BaseModel):
     style: Optional[str] = "professional"  # Writing style
     min_word_count: Optional[int] = None  # Minimum word count
     max_word_count: Optional[int] = None  # Maximum word count
+    fusion_degree: Optional[str] = "medium"  # Content fusion degree: low, medium, high
+    enable_svg_output: Optional[bool] = False  # Enable SVG-based HTML output with illustrations
 
 class GenerationRequest(BaseModel):
     user_input: UserInput

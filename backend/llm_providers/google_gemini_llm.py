@@ -82,11 +82,13 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
 
         api_call_parts: List[Union[str, Image.Image]] = []
         
-        # Get language, style, and word count preferences
+        # Get language, style, word count, and fusion preferences
         language = "zh"  # Default to Chinese
         style = "professional"  # Default style
         min_word_count = None
         max_word_count = None
+        fusion_degree = "medium"  # Default fusion degree
+        enable_svg_output = False  # Default SVG output
         
         if output_preferences:
             # Convert Pydantic model to dict if needed
@@ -95,6 +97,8 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
             style = prefs_dict.get("style", "professional")
             min_word_count = prefs_dict.get("min_word_count")
             max_word_count = prefs_dict.get("max_word_count")
+            fusion_degree = prefs_dict.get("fusion_degree", "medium")
+            enable_svg_output = prefs_dict.get("enable_svg_output", False)
         
         # Language-specific instructions
         language_instructions = {
@@ -134,6 +138,37 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
         elif max_word_count:
             word_count_instruction = f"- **Word Count**: The article should be no more than {max_word_count} words.\n"
         
+        # Fusion degree-specific instructions
+        fusion_instructions = {
+            "low": (
+                "- **Content Fusion - LOW**: Maintain the original structure and clear separation of content blocks. "
+                "Keep each content block relatively distinct while creating smooth transitions between them. "
+                "Preserve the original organization and flow as much as possible."
+            ),
+            "medium": (
+                "- **Content Fusion - MEDIUM**: Moderately integrate the content while maintaining logical clarity. "
+                "Blend related content naturally while preserving important structural elements. "
+                "Balance readability with coherent narrative flow."
+            ),
+            "high": (
+                "- **Content Fusion - HIGH**: Deeply understand and reconstruct all content into a highly coherent whole. "
+                "Break down original content blocks completely and weave them into a seamless, unified narrative. "
+                "Prioritize overall coherence and flow over preserving original structure. Think holistically about the content."
+            )
+        }
+        
+        fusion_instruction = fusion_instructions.get(fusion_degree, fusion_instructions["medium"])
+        
+        # SVG output instruction
+        svg_instruction = ""
+        if enable_svg_output:
+            svg_instruction = (
+                "- **SVG Enhanced Output**: In addition to the regular markdown content, create relevant SVG illustrations and diagrams. "
+                "Integrate SVG code directly into the HTML output where appropriate to enhance visual understanding. "
+                "Create custom charts, diagrams, flowcharts, or conceptual illustrations that complement the content. "
+                "Use meaningful colors and clear labeling in SVG elements.\n"
+            )
+        
         system_prompt_text = (
              "You are an expert article writer and content strategist. "
              "Your primary task is to take the following user-provided content blocks (which may include text, code snippets, and actual image data) "
@@ -147,6 +182,8 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
              f"- **Language**: {language_instruction}\n"
              f"- **Writing Style**: {style_instruction}\n"
              f"{word_count_instruction}"
+             f"{fusion_instruction}\n"
+             f"{svg_instruction}"
              "The user's content blocks (text, code, and image data if provided) are given below. Process them to build the article:\n"
              "---"
         )
@@ -262,9 +299,13 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
             
             # Convert Markdown to HTML using markdown-it-py
             actual_preview_html = self.md_parser.render(generated_markdown)
+            
+            # Enhance HTML with custom styling for SVG output
+            if enable_svg_output:
+                actual_preview_html = self._enhance_html_with_svg_styling(actual_preview_html)
 
             # Generate meaningful suggestions based on the content
-            suggestions = self._generate_content_suggestions(user_input, generated_markdown, language, style)
+            suggestions = self._generate_content_suggestions(user_input, generated_markdown, language, style, output_preferences)
             
             print(f"INFO: Successfully generated content with title: {extracted_title}")
             return GeneratedContent(
@@ -288,7 +329,73 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
                 suggestions=[error_suggestion, "Check your API key configuration and network connection", "Verify that all image URLs are accessible"]
             )
 
-    def _generate_content_suggestions(self, user_input: UserInput, generated_markdown: str, language: str, style: str) -> List[str]:
+    def _enhance_html_with_svg_styling(self, html_content: str) -> str:
+        """Enhance HTML content with better styling for SVG elements and overall presentation."""
+        # Add custom CSS for SVG-enhanced content
+        enhanced_css = """
+        <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 { 
+            color: #2c3e50;
+            margin-top: 2em;
+            margin-bottom: 0.5em;
+        }
+        h1 { 
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 0.5em;
+        }
+        svg { 
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .svg-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border-left: 4px solid #3498db;
+        }
+        blockquote {
+            border-left: 4px solid #3498db;
+            margin: 0;
+            padding-left: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        </style>
+        """
+        
+        # Insert the CSS at the beginning of the HTML content
+        if html_content.strip():
+            return enhanced_css + html_content
+        return html_content
+
+    def _generate_content_suggestions(self, user_input: UserInput, generated_markdown: str, language: str, style: str, output_preferences: Optional[OutputPreferences] = None) -> List[str]:
         """Generate meaningful suggestions based on the content and user input."""
         suggestions = []
         
@@ -318,6 +425,20 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
             suggestions.append("可以添加更多问答形式的内容来增强互动性" if language == "zh" else "You could add more Q&A style content to enhance interactivity")
         elif style == "technical":
             suggestions.append("考虑添加性能指标和最佳实践建议" if language == "zh" else "Consider adding performance metrics and best practice recommendations")
+        
+        # Fusion degree specific suggestions
+        fusion_degree = output_preferences.model_dump().get("fusion_degree", "medium") if output_preferences else "medium"
+        if fusion_degree == "low":
+            suggestions.append("尝试提高融合度来获得更连贯的内容流" if language == "zh" else "Try increasing fusion degree for more coherent content flow")
+        elif fusion_degree == "high":
+            suggestions.append("如果需要保持原始结构，可以降低融合度" if language == "zh" else "Consider lowering fusion degree if you need to maintain original structure")
+        
+        # SVG output suggestions
+        enable_svg = output_preferences.model_dump().get("enable_svg_output", False) if output_preferences else False
+        if not enable_svg and (has_code or "数据" in generated_markdown or "data" in generated_markdown.lower()):
+            suggestions.append("启用SVG输出可以添加图表和可视化元素" if language == "zh" else "Enable SVG output to add charts and visualization elements")
+        elif enable_svg:
+            suggestions.append("SVG图表已启用，可以进一步优化视觉元素" if language == "zh" else "SVG charts are enabled, consider further optimizing visual elements")
         
         # General improvement suggestions
         suggestions.append("审查内容确保逻辑流畅和信息准确" if language == "zh" else "Review content to ensure logical flow and information accuracy")
