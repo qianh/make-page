@@ -305,7 +305,20 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
                   borderRadius: 12,
                   background: '#f8f8f9',
                   minHeight: 250,
-                  lineHeight: 1.6
+                  lineHeight: 1.6,
+                  // CSS 隔离样式，防止生成内容影响网页其他部分
+                  contain: 'layout style paint',
+                  isolation: 'isolate',
+                  overflow: 'hidden',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
+                  // 重置可能被生成内容影响的样式
+                  fontFamily: 'inherit',
+                  fontSize: 'inherit',
+                  color: 'inherit',
+                  // 限制子元素可能的样式溢出
+                  position: 'relative',
+                  zIndex: 1
                 }}
               />
             </TabPane>

@@ -10,7 +10,7 @@ This is an "AI Content Weaver" application. It's a full-stack web app with a Rea
 
 The project is a monorepo containing two main parts:
 
--   `frontend/`: A React single-page application built with Vite. It's responsible for the user interface, state management, and communicating with the backend. It uses Tailwind CSS for styling.
+-   `frontend/`: A React single-page application built with Vite. It's responsible for the user interface, state management, and communicating with the backend. It uses Ant Design for UI components and Tailwind CSS for styling.
 -   `backend/`: A Python API built with FastAPI. It handles business logic, interacts with external LLM APIs, and processes user content.
 
 ### Backend Key Concepts
@@ -20,6 +20,8 @@ The project is a monorepo containing two main parts:
 -   **API Endpoints**: The core endpoints are defined in `main.py`:
     -   `GET /api/v1/llms`: Fetches the hardcoded list of available LLMs and their capabilities.
     -   `POST /api/v1/generate`: Takes user input blocks and an LLM selection, and returns a generated article.
+    -   `POST /api/v1/obsidian/files`: Imports files from Obsidian vaults as content blocks.
+    -   `POST /api/v1/upload_image`: Handles image uploads and stores them in the `pic/` directory.
 
 ### Frontend Key Concepts
 
@@ -28,6 +30,8 @@ The project is a monorepo containing two main parts:
     -   `App.jsx` is the main component, managing the overall application state (content blocks, selected LLM, generated article).
     -   `components/LLMSelector.jsx` fetches and displays available LLMs from the `/api/v1/llms` endpoint.
     -   `components/ContentBlockInput.jsx` is a dynamic component for adding/editing text, code, or image blocks.
+    -   `components/EditableOutput.jsx` provides rich text editing of generated content using React-Quill.
+    -   `components/ObsidianImporter.jsx` handles importing markdown files from Obsidian vaults.
 
 ## Development
 
@@ -60,7 +64,7 @@ The backend uses `uv` for environment and package management.
     ```bash
     # Set up virtual env and install dependencies (if not done)
     uv venv
-    uv pip install -r requirements.txt # Assuming a requirements.txt exists or is created
+    uv pip sync
 
     # Run the server
     uv run uvicorn main:app --reload --port 8000
@@ -88,3 +92,30 @@ The frontend uses `npm` for package management.
     ```bash
     npm run build
     ```
+
+## Project-Specific Patterns
+
+### Adding New LLM Providers
+
+1. Create new provider class in `backend/llm_providers/` inheriting from `BaseLLMProvider`
+2. Implement required methods: `generate_content()`, `get_model_info()`
+3. Add provider to the factory function in `main.py`
+4. Update the hardcoded LLM list in `main.py` to include new provider options
+
+### Content Block System
+
+Content blocks use discriminated unions in Pydantic schemas:
+- `TextContentBlock`: Plain text content
+- `CodeContentBlock`: Code with language specification  
+- `ImageContentBlock`: Image URL with optional description
+
+### Multi-language Support
+
+The application supports multiple languages and writing styles. Language/style configurations are defined in the frontend and passed to LLM providers through the generation API.
+
+## Development Notes
+
+- **No Testing Framework**: Currently no formal testing setup. Consider adding Jest/Vitest for frontend and pytest for backend.
+- **State Management**: Frontend uses React hooks without external state management libraries.
+- **Modern Tooling**: Uses `uv` for Python dependency management and Vite for frontend builds.
+- **Obsidian Integration**: Special support for importing Obsidian vault files as content blocks.

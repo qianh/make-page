@@ -27,7 +27,7 @@ const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 
 const ObsidianImporter = ({ onImportFiles }) => {
-  const [vaultPath, setVaultPath] = useState('');
+  const [vaultPath, setVaultPath] = useState('/Users/john/private/md');
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -155,15 +155,7 @@ const ObsidianImporter = ({ onImportFiles }) => {
   const totalFiles = files.filter(f => !f.is_directory).length;
 
   return (
-    <Card 
-      title={
-        <Space>
-          <ImportOutlined />
-          <Title level={4} style={{ margin: 0 }}>Obsidian Vault Importer</Title>
-        </Space>
-      }
-      style={{ marginBottom: 24 }}
-    >
+    <div style={{ padding: 24 }}>
       <Space direction="vertical" style={{ width: '100%' }} size="middle">
         <Row gutter={16} align="middle">
           <Col flex="auto">
@@ -253,7 +245,7 @@ const ObsidianImporter = ({ onImportFiles }) => {
           </>
         )}
       </Space>
-    </Card>
+    </div>
   );
 };
 

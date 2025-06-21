@@ -379,3 +379,125 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
 .ql-snow .ql-tooltip a.ql-remove::before {
   color: var(--error-color);
 }
+
+/* Generated Content Container Styles - 防止生成内容影响网页布局 */
+.html-preview-box {
+  /* CSS 隔离 - 防止子元素样式影响父级 */
+  contain: layout style paint;
+  isolation: isolate;
+  
+  /* 溢出控制 */
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  
+  /* 位置隔离 */
+  position: relative;
+  z-index: 1;
+  
+  /* 重置可能被污染的样式 */
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
+/* 生成内容中的所有元素样式重置和限制 */
+.html-preview-box * {
+  /* 防止子元素样式泄露到外部 */
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 特殊处理 SVG 内容 - 防止 SVG 影响网页布局 */
+.html-preview-box svg {
+  /* SVG 尺寸限制 */
+  max-width: 100% !important;
+  max-height: 500px !important;
+  width: auto !important;
+  height: auto !important;
+  
+  /* 防止 SVG 溢出 */
+  overflow: visible;
+  
+  /* 位置控制 */
+  display: block;
+  margin: 0 auto;
+  
+  /* 防止 SVG 样式影响外部 */
+  isolation: isolate;
+}
+
+/* SVG 内部元素样式控制 */
+.html-preview-box svg * {
+  /* 防止 SVG 内部样式泄露 */
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* 生成内容中的表格样式限制 */
+.html-preview-box table {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: auto !important;
+  border-collapse: collapse !important;
+  margin: 1rem 0 !important;
+}
+
+.html-preview-box table td,
+.html-preview-box table th {
+  padding: 0.5rem !important;
+  border: 1px solid #ddd !important;
+  word-wrap: break-word !important;
+  max-width: 200px !important;
+}
+
+/* 生成内容中图片样式限制 */
+.html-preview-box img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  margin: 1rem auto !important;
+}
+
+/* 生成内容中代码块样式限制 */
+.html-preview-box pre,
+.html-preview-box code {
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
+}
+
+/* 防止生成内容中的浮动元素影响布局 */
+.html-preview-box::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* 生成内容中的定位元素限制 */
+.html-preview-box [style*="position: fixed"],
+.html-preview-box [style*="position: absolute"] {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: auto !important;
+}
+
+/* 防止生成内容影响页面滚动 */
+.html-preview-box [style*="overflow: hidden"] {
+  overflow: visible !important;
+}
+
+/* 生成内容中的样式标签限制 */
+.html-preview-box style {
+  display: none !important;
+}
+
+/* 生成内容中的脚本标签限制 */
+.html-preview-box script {
+  display: none !important;
+}

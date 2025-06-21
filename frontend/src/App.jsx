@@ -8,10 +8,10 @@ import FusionDegreeSelector from './components/FusionDegreeSelector';
 import './index.css'; // Global base styles
 
 import {
-  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Affix, Spin, message
+  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Affix, Spin, message, Modal
 } from 'antd';
 import {
-  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined
+  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
@@ -25,12 +25,13 @@ function App() {
   const [selectedLanguage, setSelectedLanguage] = useState('zh');
   const [selectedStyle, setSelectedStyle] = useState('professional');
   const [selectedHtmlStyle, setSelectedHtmlStyle] = useState('modern');
-  const [wordCountRange, setWordCountRange] = useState({ min: null, max: null });
+  const [wordCountRange, setWordCountRange] = useState({ min: 500, max: 1000 });
   const [fusionDegree, setFusionDegree] = useState('medium');
   const [enableSvgOutput, setEnableSvgOutput] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedArticle, setGeneratedArticle] = useState(null);
   const [isLlmSelectionValid, setIsLlmSelectionValid] = useState(false);
+  const [isObsidianModalOpen, setIsObsidianModalOpen] = useState(false);
 
   useEffect(() => {
     setIsLlmSelectionValid(!!(selectedLlm.provider && selectedLlm.model_name));
@@ -86,6 +87,7 @@ function App() {
       content: `# ${file.name}\n\n${file.content}`
     }));
     setBlocks(prev => [...prev, ...newBlocks]);
+    setIsObsidianModalOpen(false);
   }, []);
 
   const handleGenerate = async () => {
@@ -187,7 +189,6 @@ function App() {
       </Header>
       <Content style={{ padding: '24px 48px', marginTop: 88 }}> {/* Adjust marginTop for fixed header height */}
         <Space direction="vertical" size="large" style={{width: '100%'}}>
-          <ObsidianImporter onImportFiles={handleImportObsidianFiles} />
           <Row gutter={[32, 32]}> {/* Increased gutter for more spacing */}
             <Col xs={24} lg={8} xl={7}>
               <LLMSelector
@@ -216,19 +217,32 @@ function App() {
             <Col xs={24} lg={16} xl={17}>
               <Card 
                 variant="filled"
-                style={{ borderRadius: 16, boxShadow: '0 12px 28px rgba(0,0,0,0.06)', height: '100%' }}
+                style={{ borderRadius: 16, boxShadow: '0 12px 28px rgba(0,0,0,0.06)', minHeight: '600px' }}
                 styles={{body: {padding: 0}}} // Control padding internally
               >
                 <div style={{padding: 24, borderBottom: '1px solid rgba(0,0,0,0.06)'}}>
-                    <Row justify="space-between" align="middle">
-                        <Col>
-                            <Title level={4} style={{marginBottom: 0, fontWeight: 600}}>Your Content Canvas</Title>
+                    <Row justify="space-between" align="middle" style={{height: 32}}>
+                        <Col style={{display: 'flex', alignItems: 'center', height: '100%'}}>
+                            <Title level={4} style={{
+                                margin: 0, 
+                                fontWeight: 600,
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                fontSize: '20px',
+                                lineHeight: '32px',
+                                letterSpacing: '0.5px',
+                                height: '32px',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}>Your Content Canvas</Title>
                         </Col>
-                        <Col>
-                            <Space>
+                        <Col style={{display: 'flex', alignItems: 'center', height: '100%'}}>
+                            <Space style={{height: '32px', alignItems: 'center', display: 'flex'}}>
                                 <Button icon={<FileTextOutlined />} onClick={() => addBlock('text')} shape="round">Text</Button>
                                 <Button icon={<CodeOutlined />} onClick={() => addBlock('code')} shape="round">Code</Button>
                                 <Button icon={<PictureOutlined />} onClick={() => addBlock('image')} shape="round">Image</Button>
+                                <Button icon={<ImportOutlined />} onClick={() => setIsObsidianModalOpen(true)} shape="round">Obsidian</Button>
                             </Space>
                         </Col>
                     </Row>
@@ -299,6 +313,19 @@ function App() {
       <Footer style={{ textAlign: 'center', background: 'transparent', paddingTop: 64, paddingBottom: 32 }}>
         <Text style={{color: 'rgba(0,0,0,0.45)'}}>AI Content Weaver ©2025</Text>
       </Footer>
+      
+      <Modal
+        title="Import from Obsidian Vault"
+        open={isObsidianModalOpen}
+        onCancel={() => setIsObsidianModalOpen(false)}
+        footer={null}
+        width={800}
+        styles={{
+          body: { padding: 0 }
+        }}
+      >
+        <ObsidianImporter onImportFiles={handleImportObsidianFiles} />
+      </Modal>
     </Layout>
   );
 }

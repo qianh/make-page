@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Select, Typography, Space, InputNumber, Button, Tooltip } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Select, Typography, Space, InputNumber, Button, Tooltip, Collapse } from 'antd';
 import { GlobalOutlined, EditOutlined, FileTextOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -57,6 +57,16 @@ function LanguageSelector({
 }) {
   const [customRange, setCustomRange] = useState({ min: '', max: '' });
 
+  // Initialize customRange when wordCountRange changes
+  useEffect(() => {
+    if (wordCountRange?.min && wordCountRange?.max) {
+      setCustomRange({ 
+        min: wordCountRange.min.toString(), 
+        max: wordCountRange.max.toString() 
+      });
+    }
+  }, [wordCountRange]);
+
   const handlePresetClick = (preset) => {
     const newRange = { min: preset.min, max: preset.max };
     setCustomRange({ min: preset.min.toString(), max: preset.max.toString() });
@@ -75,156 +85,167 @@ function LanguageSelector({
       onWordCountChange({ min, max });
     }
   };
-  return (
-    <Card
-      title={
+  const outputPreferenceItems = [
+    {
+      key: '1',
+      label: (
         <Space>
           <GlobalOutlined style={{ color: '#007aff' }} />
-          <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
+          <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
             Output Preferences
           </Title>
         </Space>
-      }
-      variant="borderless"
+      ),
+      children: (
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <div>
+            <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+              Output Language
+            </Typography.Text>
+            <Select
+              style={{ width: '100%' }}
+              placeholder="Select language"
+              value={selectedLanguage}
+              onChange={onLanguageChange}
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {LANGUAGES.map(lang => (
+                <Option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          <div>
+            <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+              Writing Style
+            </Typography.Text>
+            <Select
+              style={{ width: '100%' }}
+              placeholder="Select writing style"
+              value={selectedStyle}
+              onChange={onStyleChange}
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {LANGUAGE_STYLES.map(style => (
+                <Option key={style.code} value={style.code}>
+                  {style.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          <div>
+            <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+              HTML Display Style
+            </Typography.Text>
+            <Select
+              style={{ width: '100%' }}
+              placeholder="Select HTML style"
+              value={selectedHtmlStyle}
+              onChange={onHtmlStyleChange}
+              showSearch
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              options={HTML_STYLES.map(style => ({
+                value: style.code,
+                label: style.name,
+                title: style.description
+              }))}
+              optionRender={(option) => (
+                <div style={{ padding: '4px 0' }}>
+                  <div style={{ fontWeight: 500, lineHeight: '1.2' }}>
+                    {option.label}
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: '#666', 
+                    marginTop: '2px',
+                    lineHeight: '1.3',
+                    whiteSpace: 'normal'
+                  }}>
+                    {option.title}
+                  </div>
+                </div>
+              )}
+            />
+          </div>
+
+          <div>
+            <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+              Word Count Range
+            </Typography.Text>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Space wrap>
+                {WORD_COUNT_PRESETS.map(preset => (
+                  <Button
+                    key={preset.name}
+                    size="small"
+                    type={
+                      wordCountRange?.min === preset.min && wordCountRange?.max === preset.max 
+                        ? 'primary' 
+                        : 'default'
+                    }
+                    onClick={() => handlePresetClick(preset)}
+                    style={{ borderRadius: 8 }}
+                  >
+                    {preset.name} ({preset.min}-{preset.max})
+                  </Button>
+                ))}
+              </Space>
+              <Space.Compact style={{ width: '100%' }}>
+                <Tooltip title="Minimum word count">
+                  <InputNumber
+                    placeholder="Min"
+                    value={customRange.min}
+                    onChange={(value) => handleCustomRangeChange('min', value)}
+                    min={1}
+                    max={10000}
+                    style={{ width: '50%' }}
+                  />
+                </Tooltip>
+                <Tooltip title="Maximum word count">
+                  <InputNumber
+                    placeholder="Max"
+                    value={customRange.max}
+                    onChange={(value) => handleCustomRangeChange('max', value)}
+                    min={1}
+                    max={10000}
+                    style={{ width: '50%' }}
+                  />
+                </Tooltip>
+              </Space.Compact>
+            </Space>
+          </div>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <Collapse 
+      items={outputPreferenceItems}
+      defaultActiveKey={['1']} // Default expanded
+      size="large"
       style={{ 
         borderRadius: 16, 
         boxShadow: '0 12px 28px rgba(0,0,0,0.06)',
-        marginBottom: 24
+        marginBottom: 24,
+        background: 'rgba(255,255,255,0.8)',
+        border: 'none'
       }}
-    >
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <div>
-          <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
-            Output Language
-          </Typography.Text>
-          <Select
-            style={{ width: '100%' }}
-            placeholder="Select language"
-            value={selectedLanguage}
-            onChange={onLanguageChange}
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-          >
-            {LANGUAGES.map(lang => (
-              <Option key={lang.code} value={lang.code}>
-                {lang.name}
-              </Option>
-            ))}
-          </Select>
-        </div>
-
-        <div>
-          <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
-            Writing Style
-          </Typography.Text>
-          <Select
-            style={{ width: '100%' }}
-            placeholder="Select writing style"
-            value={selectedStyle}
-            onChange={onStyleChange}
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-          >
-            {LANGUAGE_STYLES.map(style => (
-              <Option key={style.code} value={style.code}>
-                {style.name}
-              </Option>
-            ))}
-          </Select>
-        </div>
-
-        <div>
-          <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
-            HTML Display Style
-          </Typography.Text>
-          <Select
-            style={{ width: '100%' }}
-            placeholder="Select HTML style"
-            value={selectedHtmlStyle}
-            onChange={onHtmlStyleChange}
-            showSearch
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-            options={HTML_STYLES.map(style => ({
-              value: style.code,
-              label: style.name,
-              title: style.description
-            }))}
-            optionRender={(option) => (
-              <div style={{ padding: '4px 0' }}>
-                <div style={{ fontWeight: 500, lineHeight: '1.2' }}>
-                  {option.label}
-                </div>
-                <div style={{ 
-                  fontSize: '12px', 
-                  color: '#666', 
-                  marginTop: '2px',
-                  lineHeight: '1.3',
-                  whiteSpace: 'normal'
-                }}>
-                  {option.title}
-                </div>
-              </div>
-            )}
-          />
-        </div>
-
-        <div>
-          <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
-            Word Count Range
-          </Typography.Text>
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Space wrap>
-              {WORD_COUNT_PRESETS.map(preset => (
-                <Button
-                  key={preset.name}
-                  size="small"
-                  type={
-                    wordCountRange?.min === preset.min && wordCountRange?.max === preset.max 
-                      ? 'primary' 
-                      : 'default'
-                  }
-                  onClick={() => handlePresetClick(preset)}
-                  style={{ borderRadius: 8 }}
-                >
-                  {preset.name} ({preset.min}-{preset.max})
-                </Button>
-              ))}
-            </Space>
-            <Space.Compact style={{ width: '100%' }}>
-              <Tooltip title="Minimum word count">
-                <InputNumber
-                  placeholder="Min"
-                  value={customRange.min}
-                  onChange={(value) => handleCustomRangeChange('min', value)}
-                  min={1}
-                  max={10000}
-                  style={{ width: '50%' }}
-                />
-              </Tooltip>
-              <Tooltip title="Maximum word count">
-                <InputNumber
-                  placeholder="Max"
-                  value={customRange.max}
-                  onChange={(value) => handleCustomRangeChange('max', value)}
-                  min={1}
-                  max={10000}
-                  style={{ width: '50%' }}
-                />
-              </Tooltip>
-            </Space.Compact>
-          </Space>
-        </div>
-      </Space>
-    </Card>
+    />
   );
 }
 
