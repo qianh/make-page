@@ -3,6 +3,7 @@ import ContentBlockInput from './components/ContentBlockInput';
 import LLMSelector from './components/LLMSelector';
 import LanguageSelector from './components/LanguageSelector';
 import EditableOutput from './components/EditableOutput';
+import ObsidianImporter from './components/ObsidianImporter';
 import './index.css'; // Global base styles
 
 import {
@@ -73,6 +74,15 @@ function App() {
 
   const handleHtmlStyleChange = useCallback((htmlStyle) => {
     setSelectedHtmlStyle(htmlStyle);
+  }, []);
+
+  const handleImportObsidianFiles = useCallback((obsidianFiles) => {
+    const newBlocks = obsidianFiles.map(file => ({
+      id: generateId(),
+      type: 'text',
+      content: `# ${file.name}\n\n${file.content}`
+    }));
+    setBlocks(prev => [...prev, ...newBlocks]);
   }, []);
 
   const handleGenerate = async () => {
@@ -172,6 +182,7 @@ function App() {
       </Header>
       <Content style={{ padding: '24px 48px', marginTop: 88 }}> {/* Adjust marginTop for fixed header height */}
         <Space direction="vertical" size="large" style={{width: '100%'}}>
+          <ObsidianImporter onImportFiles={handleImportObsidianFiles} />
           <Row gutter={[32, 32]}> {/* Increased gutter for more spacing */}
             <Col xs={24} lg={8} xl={7}>
               <LLMSelector

@@ -5,7 +5,8 @@ import time
 from pathlib import Path
 from schemas import (
     GenerationRequest, GeneratedContent, UserInput, LLMSelection, # For /generate endpoint
-    AvailableLLMsResponse, LLMProviderInfo, LLMModelInfo, ModelCapability # For /llms endpoint
+    AvailableLLMsResponse, LLMProviderInfo, LLMModelInfo, ModelCapability, # For /llms endpoint
+    ObsidianVaultRequest, ObsidianVaultResponse, ObsidianFile # For /obsidian endpoint
 )
 from typing import List # Ensure List is imported if not already
 from typing import List
@@ -124,6 +125,59 @@ def get_llm_provider(provider_name: str) -> BaseLLMProvider:
 @app.get("/")
 async def root():
     return {"message": "Hello Agent App Backend - Now with LLM Integration!"}
+
+@app.post("/api/v1/obsidian/files", response_model=ObsidianVaultResponse)
+async def get_obsidian_files(request: ObsidianVaultRequest):
+    vault_path = Path(request.vault_path)
+    
+    if not vault_path.exists():
+        raise HTTPException(status_code=404, detail="Vault path not found")
+    
+    if not vault_path.is_dir():
+        raise HTTPException(status_code=400, detail="Path is not a directory")
+    
+    files = []
+    
+    def read_markdown_files(directory: Path, prefix: str = ""):
+        for item in directory.iterdir():
+            if item.name.startswith('.'):
+                continue
+                
+            relative_path = f"{prefix}{item.name}" if prefix else item.name
+            
+            if item.is_dir():
+                files.append(ObsidianFile(
+                    path=relative_path,
+                    name=item.name,
+                    content="",
+                    size=0,
+                    modified_time=str(item.stat().st_mtime),
+                    is_directory=True
+                ))
+                read_markdown_files(item, f"{relative_path}/")
+            elif item.suffix == '.md':
+                try:
+                    content = item.read_text(encoding='utf-8')
+                    files.append(ObsidianFile(
+                        path=relative_path,
+                        name=item.name,
+                        content=content,
+                        size=len(content),
+                        modified_time=str(item.stat().st_mtime),
+                        is_directory=False
+                    ))
+                except Exception as e:
+                    print(f"Error reading file {item}: {e}")
+    
+    try:
+        read_markdown_files(vault_path)
+        return ObsidianVaultResponse(
+            files=files,
+            vault_name=vault_path.name
+        )
+    except Exception as e:
+        print(f"Error reading vault: {e}")
+        raise HTTPException(status_code=500, detail="Error reading vault files")
 
 
 

@@ -76,3 +76,20 @@ class LLMProviderInfo(BaseModel):
 
 class AvailableLLMsResponse(BaseModel):
     providers: List[LLMProviderInfo]
+
+# --- Obsidian Vault Models ---
+
+class ObsidianFile(BaseModel):
+    path: str
+    name: str
+    content: str
+    size: int
+    modified_time: str
+    is_directory: bool = False
+
+class ObsidianVaultRequest(BaseModel):
+    vault_path: str
+
+class ObsidianVaultResponse(BaseModel):
+    files: List[ObsidianFile]
+    vault_name: str
