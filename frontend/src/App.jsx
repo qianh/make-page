@@ -8,7 +8,7 @@ import FusionDegreeSelector from './components/FusionDegreeSelector';
 import './index.css'; // Global base styles
 
 import {
-  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Affix, Spin, message, Modal
+  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Affix, Spin, message, Modal, Badge
 } from 'antd';
 import {
   PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined
@@ -32,6 +32,9 @@ function App() {
   const [generatedArticle, setGeneratedArticle] = useState(null);
   const [isLlmSelectionValid, setIsLlmSelectionValid] = useState(false);
   const [isObsidianModalOpen, setIsObsidianModalOpen] = useState(false);
+  const [isTextModalOpen, setIsTextModalOpen] = useState(false);
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   useEffect(() => {
     setIsLlmSelectionValid(!!(selectedLlm.provider && selectedLlm.model_name));
@@ -164,6 +167,18 @@ function App() {
     }));
   }, []);
 
+  const getBlockCounts = () => {
+    const counts = { text: 0, code: 0, image: 0 };
+    blocks.forEach(block => {
+      if (counts.hasOwnProperty(block.type)) {
+        counts[block.type]++;
+      }
+    });
+    return counts;
+  };
+
+  const blockCounts = getBlockCounts();
+
   return (
     <Layout style={{ minHeight: '100vh', background: '#f8f8f9' }}> {/* Light grey, Apple-like background */}
       <Header style={{ 
@@ -239,55 +254,54 @@ function App() {
                         </Col>
                         <Col style={{display: 'flex', alignItems: 'center', height: '100%'}}>
                             <Space style={{height: '32px', alignItems: 'center', display: 'flex'}}>
-                                <Button icon={<FileTextOutlined />} onClick={() => addBlock('text')} shape="round">Text</Button>
-                                <Button icon={<CodeOutlined />} onClick={() => addBlock('code')} shape="round">Code</Button>
-                                <Button icon={<PictureOutlined />} onClick={() => addBlock('image')} shape="round">Image</Button>
+                                <Badge count={blockCounts.text} size="small" offset={[-2, -2]}>
+                                    <Button icon={<FileTextOutlined />} onClick={() => setIsTextModalOpen(true)} shape="round">Text</Button>
+                                </Badge>
+                                <Badge count={blockCounts.code} size="small" offset={[-2, -2]}>
+                                    <Button icon={<CodeOutlined />} onClick={() => setIsCodeModalOpen(true)} shape="round">Code</Button>
+                                </Badge>
+                                <Badge count={blockCounts.image} size="small" offset={[-2, -2]}>
+                                    <Button icon={<PictureOutlined />} onClick={() => setIsImageModalOpen(true)} shape="round">Image</Button>
+                                </Badge>
                                 <Button icon={<ImportOutlined />} onClick={() => setIsObsidianModalOpen(true)} shape="round">Obsidian</Button>
                             </Space>
                         </Col>
                     </Row>
                 </div>
-                <div style={{padding: 24, minHeight: 400, maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-                  {blocks.length === 0 ? (
+                <div style={{padding: '0 24px', height: 'calc(100vh - 300px)' }}>
+                  {generatedArticle && generatedArticle.status === "success" ? (
+                    <EditableOutput 
+                      generatedArticle={generatedArticle} 
+                      onSave={handleSaveEditedContent}
+                      selectedHtmlStyle={selectedHtmlStyle}
+                    />
+                  ) : generatedArticle && generatedArticle.status === "error" ? (
+                    <Result
+                      status="error"
+                      title={generatedArticle.title}
+                      subTitle={generatedArticle.subTitle}
+                    />
+                  ) : (
                     <Empty
                       image={<BulbOutlined style={{ fontSize: 72, color: '#007aff' }} />}
                       styles={{image: { height: 100, marginBottom: 24}}}
                       description={
                         <Space direction="vertical" align="center">
-                          <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>Canvas is Empty</Title>
-                          <Paragraph style={{color: 'rgba(0,0,0,0.45)'}}>Build your article by adding content blocks.</Paragraph>
+                          <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>Ready to Generate</Title>
+                          <Paragraph style={{color: 'rgba(0,0,0,0.45)'}}>Add content using the buttons above, then generate your article.</Paragraph>
+                          {blocks.length > 0 && (
+                            <Text style={{color: 'rgba(0,0,0,0.6)', fontSize: '14px'}}>
+                              {blockCounts.text} Text, {blockCounts.code} Code, {blockCounts.image} Image blocks ready
+                            </Text>
+                          )}
                         </Space>
                       }
                     />
-                  ) : (
-                    <Space direction="vertical" size="large" style={{width: '100%'}}>
-                      {blocks.map((block, index) => (
-                        <ContentBlockInput
-                          key={block.id}
-                          block={block}
-                          index={index}
-                          updateBlock={updateBlock}
-                          removeBlock={removeBlock}
-                        />
-                      ))}
-                    </Space>
                   )}
                 </div>
               </Card>
             </Col>
           </Row>
-          
-          {generatedArticle && (
-            <Row>
-              <Col span={24}>
-                <EditableOutput 
-                  generatedArticle={generatedArticle} 
-                  onSave={handleSaveEditedContent}
-                  selectedHtmlStyle={selectedHtmlStyle}
-                />
-              </Col>
-            </Row>
-          )}
         </Space>
       </Content>
       <Affix offsetBottom={32} style={{ display: 'flex', justifyContent: 'center' }}>
@@ -325,6 +339,135 @@ function App() {
         }}
       >
         <ObsidianImporter onImportFiles={handleImportObsidianFiles} />
+      </Modal>
+
+      <Modal
+        title={`Text Content Management (${blockCounts.text} items)`}
+        open={isTextModalOpen}
+        onCancel={() => setIsTextModalOpen(false)}
+        footer={null}
+        width={900}
+        styles={{
+          body: { maxHeight: '70vh', overflowY: 'auto' }
+        }}
+      >
+        <div style={{ padding: '24px' }}>
+          <Space direction="vertical" size="large" style={{width: '100%'}}>
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />} 
+              onClick={() => addBlock('text')}
+              block
+              size="large"
+            >
+              Add New Text Block
+            </Button>
+            {blocks.filter(block => block.type === 'text').map((block, index) => {
+              const actualIndex = blocks.findIndex(b => b.id === block.id);
+              return (
+                <ContentBlockInput
+                  key={block.id}
+                  block={block}
+                  index={actualIndex}
+                  updateBlock={updateBlock}
+                  removeBlock={removeBlock}
+                />
+              );
+            })}
+            {blocks.filter(block => block.type === 'text').length === 0 && (
+              <Empty 
+                image={<FileTextOutlined style={{ fontSize: 48, color: '#007aff' }} />}
+                description="No text blocks yet. Click above to add your first text block."
+              />
+            )}
+          </Space>
+        </div>
+      </Modal>
+
+      <Modal
+        title={`Code Content Management (${blockCounts.code} items)`}
+        open={isCodeModalOpen}
+        onCancel={() => setIsCodeModalOpen(false)}
+        footer={null}
+        width={900}
+        styles={{
+          body: { maxHeight: '70vh', overflowY: 'auto' }
+        }}
+      >
+        <div style={{ padding: '24px' }}>
+          <Space direction="vertical" size="large" style={{width: '100%'}}>
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />} 
+              onClick={() => addBlock('code')}
+              block
+              size="large"
+            >
+              Add New Code Block
+            </Button>
+            {blocks.filter(block => block.type === 'code').map((block, index) => {
+              const actualIndex = blocks.findIndex(b => b.id === block.id);
+              return (
+                <ContentBlockInput
+                  key={block.id}
+                  block={block}
+                  index={actualIndex}
+                  updateBlock={updateBlock}
+                  removeBlock={removeBlock}
+                />
+              );
+            })}
+            {blocks.filter(block => block.type === 'code').length === 0 && (
+              <Empty 
+                image={<CodeOutlined style={{ fontSize: 48, color: '#007aff' }} />}
+                description="No code blocks yet. Click above to add your first code block."
+              />
+            )}
+          </Space>
+        </div>
+      </Modal>
+
+      <Modal
+        title={`Image Content Management (${blockCounts.image} items)`}
+        open={isImageModalOpen}
+        onCancel={() => setIsImageModalOpen(false)}
+        footer={null}
+        width={900}
+        styles={{
+          body: { maxHeight: '70vh', overflowY: 'auto' }
+        }}
+      >
+        <div style={{ padding: '24px' }}>
+          <Space direction="vertical" size="large" style={{width: '100%'}}>
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />} 
+              onClick={() => addBlock('image')}
+              block
+              size="large"
+            >
+              Add New Image Block
+            </Button>
+            {blocks.filter(block => block.type === 'image').map((block, index) => {
+              const actualIndex = blocks.findIndex(b => b.id === block.id);
+              return (
+                <ContentBlockInput
+                  key={block.id}
+                  block={block}
+                  index={actualIndex}
+                  updateBlock={updateBlock}
+                  removeBlock={removeBlock}
+                />
+              );
+            })}
+            {blocks.filter(block => block.type === 'image').length === 0 && (
+              <Empty 
+                image={<PictureOutlined style={{ fontSize: 48, color: '#007aff' }} />}
+                description="No image blocks yet. Click above to add your first image block."
+              />
+            )}
+          </Space>
+        </div>
       </Modal>
     </Layout>
   );

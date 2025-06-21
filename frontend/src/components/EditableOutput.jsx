@@ -304,12 +304,12 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
                   border: '1px solid rgba(0,0,0,0.08)',
                   borderRadius: 12,
                   background: '#f8f8f9',
-                  minHeight: 250,
+                  height: 'calc(100vh - 500px)',
                   lineHeight: 1.6,
                   // CSS 隔离样式，防止生成内容影响网页其他部分
                   contain: 'layout style paint',
                   isolation: 'isolate',
-                  overflow: 'hidden',
+                  overflow: 'auto',
                   overflowWrap: 'break-word',
                   wordBreak: 'break-word',
                   // 重置可能被生成内容影响的样式
@@ -323,7 +323,7 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
               />
             </TabPane>
             <TabPane tab={<Space><CodeOutlined/>Markdown</Space>} key="2">
-              <div style={{padding: '16px', background: '#2d2d2d', borderRadius: 12, overflowX: 'auto'}}>
+              <div style={{padding: '16px', background: '#2d2d2d', borderRadius: 12, height: 'calc(100vh - 500px)', overflow: 'auto'}}>
                 <Row justify="end" style={{ marginBottom: 8 }}>
                   <Col>
                     <Button
@@ -342,9 +342,11 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
             </TabPane>
             {generatedArticle.suggestions && generatedArticle.suggestions.length > 0 && (
               <TabPane tab={<Space><BulbOutlined/>Suggestions</Space>} key="3">
-                <ul style={{ paddingLeft: 20, lineHeight: 1.8 }}>
-                  {generatedArticle.suggestions.map((s, i) => <li key={i}><Text>{s}</Text></li>)}
-                </ul>
+                <div style={{ height: 'calc(100vh - 500px)', overflow: 'auto', padding: '16px' }}>
+                  <ul style={{ paddingLeft: 20, lineHeight: 1.8 }}>
+                    {generatedArticle.suggestions.map((s, i) => <li key={i}><Text>{s}</Text></li>)}
+                  </ul>
+                </div>
               </TabPane>
             )}
           </Tabs>
