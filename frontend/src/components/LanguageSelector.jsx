@@ -29,6 +29,15 @@ const LANGUAGE_STYLES = [
   { code: 'journalistic', name: 'Journalistic' }
 ];
 
+const HTML_STYLES = [
+  { code: 'modern', name: 'Modern Minimal', description: 'Clean, minimalist design with subtle shadows' },
+  { code: 'classic', name: 'Classic Article', description: 'Traditional newspaper-style layout' },
+  { code: 'magazine', name: 'Magazine Style', description: 'Rich colors and typography like a magazine' },
+  { code: 'tech', name: 'Tech Blog', description: 'Developer-friendly with syntax highlighting' },
+  { code: 'academic', name: 'Academic Paper', description: 'Formal academic document style' },
+  { code: 'creative', name: 'Creative Portfolio', description: 'Artistic and visually striking' }
+];
+
 const WORD_COUNT_PRESETS = [
   { name: 'Short', min: 200, max: 500 },
   { name: 'Medium', min: 500, max: 1000 },
@@ -42,7 +51,9 @@ function LanguageSelector({
   onLanguageChange, 
   onStyleChange,
   wordCountRange,
-  onWordCountChange
+  onWordCountChange,
+  selectedHtmlStyle,
+  onHtmlStyleChange
 }) {
   const [customRange, setCustomRange] = useState({ min: '', max: '' });
 
@@ -126,6 +137,44 @@ function LanguageSelector({
               </Option>
             ))}
           </Select>
+        </div>
+
+        <div>
+          <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+            HTML Display Style
+          </Typography.Text>
+          <Select
+            style={{ width: '100%' }}
+            placeholder="Select HTML style"
+            value={selectedHtmlStyle}
+            onChange={onHtmlStyleChange}
+            showSearch
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            options={HTML_STYLES.map(style => ({
+              value: style.code,
+              label: style.name,
+              title: style.description
+            }))}
+            optionRender={(option) => (
+              <div style={{ padding: '4px 0' }}>
+                <div style={{ fontWeight: 500, lineHeight: '1.2' }}>
+                  {option.label}
+                </div>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#666', 
+                  marginTop: '2px',
+                  lineHeight: '1.3',
+                  whiteSpace: 'normal'
+                }}>
+                  {option.title}
+                </div>
+              </div>
+            )}
+          />
         </div>
 
         <div>

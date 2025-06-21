@@ -5,7 +5,15 @@
       "Bash(mkdir backend/pic)",
       "Bash(./start_services.sh)",
       "Bash(lsof -i :8000)",
-      "Bash(lsof -i :5173)"
+      "Bash(lsof -i :5173)",
+      "Bash(npm run lint)",
+      "Bash(npm run dev:*)",
+      "Bash(./stop_services.sh:*)",
+      "Bash(rg:*)",
+      "Bash(python:*)",
+      "Bash(uv pip install:*)",
+      "Bash(uv run:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

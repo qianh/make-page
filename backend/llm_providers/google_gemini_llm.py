@@ -30,9 +30,7 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
         else:
             try:
                 genai.configure(
-                    api_key=api_key,
-                    transport="rest",
-                    client_options={"api_endpoint": "https://gateway.ai.cloudflare.com/v1/60bce5651af4949a5209ff4fc10a1cfd/hong-gemini/google-ai-studio"}
+                    api_key=api_key
                 )
                 print("INFO: Google Generative AI SDK configured successfully.")
                 self.api_key_configured = True
@@ -76,7 +74,7 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
                 title="Error: Gemini Provider Not Configured",
                 article_markdown=f"# Error\n\n{error_message}",
                 preview_html=f"<h1>Error</h1><p>{error_message}</p>",
-                suggestions=["Ensure GOOGLE_API_KEY is set."]
+                suggestions=["Ensure GOOGLE_API_KEY is set in your environment variables", "Restart the backend service after setting the API key", "Check Google Cloud Console for API key permissions"]
             )
 
         current_model_supports_images = model_supports_images_lookup(llm_selection.model_name)
@@ -265,12 +263,15 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
             # Convert Markdown to HTML using markdown-it-py
             actual_preview_html = self.md_parser.render(generated_markdown)
 
+            # Generate meaningful suggestions based on the content
+            suggestions = self._generate_content_suggestions(user_input, generated_markdown, language, style)
+            
             print(f"INFO: Successfully generated content with title: {extracted_title}")
             return GeneratedContent(
                 title=extracted_title,
                 article_markdown=generated_markdown,
                 preview_html=actual_preview_html, # Use actual HTML
-                suggestions=["Content generated successfully by Google Gemini."]
+                suggestions=suggestions
             )
 
         except Exception as e:
@@ -284,5 +285,44 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
                 title="Error: Content Generation Failed",
                 article_markdown=f"# Error During Generation\n\nAn error occurred while trying to generate content with the Gemini API: {str(e)}",
                 preview_html=error_html,
-                suggestions=[error_suggestion]
+                suggestions=[error_suggestion, "Check your API key configuration and network connection", "Verify that all image URLs are accessible"]
             )
+
+    def _generate_content_suggestions(self, user_input: UserInput, generated_markdown: str, language: str, style: str) -> List[str]:
+        """Generate meaningful suggestions based on the content and user input."""
+        suggestions = []
+        
+        # Content analysis
+        word_count = len(generated_markdown.split())
+        has_images = any(block.type == "image" for block in user_input.blocks)
+        has_code = any(block.type == "code" for block in user_input.blocks)
+        has_headings = "#" in generated_markdown
+        
+        # Content improvement suggestions
+        if word_count < 300:
+            suggestions.append("考虑添加更多细节和例子来丰富文章内容" if language == "zh" else "Consider adding more details and examples to enrich the article content")
+        
+        if not has_headings:
+            suggestions.append("添加章节标题可以提高文章的可读性" if language == "zh" else "Adding section headings can improve article readability")
+        
+        if has_code and not has_images:
+            suggestions.append("考虑添加图表或截图来可视化代码概念" if language == "zh" else "Consider adding diagrams or screenshots to visualize code concepts")
+        
+        if has_images and not has_code:
+            suggestions.append("添加相关代码示例可以增强技术文章的实用性" if language == "zh" else "Adding relevant code examples can enhance the practicality of technical articles")
+        
+        # Style-specific suggestions
+        if style == "academic":
+            suggestions.append("考虑添加引用和参考文献来支持论点" if language == "zh" else "Consider adding citations and references to support your arguments")
+        elif style == "conversational":
+            suggestions.append("可以添加更多问答形式的内容来增强互动性" if language == "zh" else "You could add more Q&A style content to enhance interactivity")
+        elif style == "technical":
+            suggestions.append("考虑添加性能指标和最佳实践建议" if language == "zh" else "Consider adding performance metrics and best practice recommendations")
+        
+        # General improvement suggestions
+        suggestions.append("审查内容确保逻辑流畅和信息准确" if language == "zh" else "Review content to ensure logical flow and information accuracy")
+        
+        if language != "en":
+            suggestions.append("Check if technical terms are properly localized for your target audience")
+        
+        return suggestions[:6]  # Limit to 6 suggestions to avoid overwhelming the user

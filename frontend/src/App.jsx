@@ -2,18 +2,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import ContentBlockInput from './components/ContentBlockInput';
 import LLMSelector from './components/LLMSelector';
 import LanguageSelector from './components/LanguageSelector';
+import EditableOutput from './components/EditableOutput';
 import './index.css'; // Global base styles
 
 import {
-  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Affix, Spin, message, Tabs
+  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Affix, Spin, message
 } from 'antd';
 import {
-  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, CopyOutlined
+  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
-const { TabPane } = Tabs;
 
 const generateId = () => crypto.randomUUID();
 
@@ -22,6 +22,7 @@ function App() {
   const [selectedLlm, setSelectedLlm] = useState({ provider: '', model_name: '' });
   const [selectedLanguage, setSelectedLanguage] = useState('zh');
   const [selectedStyle, setSelectedStyle] = useState('professional');
+  const [selectedHtmlStyle, setSelectedHtmlStyle] = useState('modern');
   const [wordCountRange, setWordCountRange] = useState({ min: null, max: null });
   const [isLoading, setIsLoading] = useState(false);
   const [generatedArticle, setGeneratedArticle] = useState(null);
@@ -68,6 +69,10 @@ function App() {
 
   const handleWordCountChange = useCallback((range) => {
     setWordCountRange(range);
+  }, []);
+
+  const handleHtmlStyleChange = useCallback((htmlStyle) => {
+    setSelectedHtmlStyle(htmlStyle);
   }, []);
 
   const handleGenerate = async () => {
@@ -135,18 +140,12 @@ function App() {
     }
   };
 
-  const handleCopyMarkdown = () => {
-    if (generatedArticle && generatedArticle.article_markdown) {
-      navigator.clipboard.writeText(generatedArticle.article_markdown)
-        .then(() => {
-          message.success("Markdown content copied to clipboard!");
-        })
-        .catch(err => {
-          message.error("Failed to copy Markdown content.");
-          console.error('Failed to copy text: ', err);
-        });
-    }
-  };
+  const handleSaveEditedContent = useCallback((editedHtml) => {
+    setGeneratedArticle(prev => ({
+      ...prev,
+      preview_html: editedHtml
+    }));
+  }, []);
 
   return (
     <Layout style={{ minHeight: '100vh', background: '#f8f8f9' }}> {/* Light grey, Apple-like background */}
@@ -187,6 +186,8 @@ function App() {
                 onStyleChange={handleStyleChange}
                 wordCountRange={wordCountRange}
                 onWordCountChange={handleWordCountChange}
+                selectedHtmlStyle={selectedHtmlStyle}
+                onHtmlStyleChange={handleHtmlStyleChange}
               />
             </Col>
 
@@ -243,55 +244,11 @@ function App() {
           {generatedArticle && (
             <Row>
               <Col span={24}>
-                {generatedArticle.status === "error" ? (
-                  <Result
-                    status="error"
-                    title={generatedArticle.title}
-                    subTitle={generatedArticle.subTitle}
-                    style={{background: '#fff', borderRadius: 16, padding: '48px 24px', boxShadow: '0 12px 28px rgba(0,0,0,0.06)'}}
-                  />
-                ) : (
-                  <Card 
-                    title={<Title level={4} style={{marginBottom:0, fontWeight: 600}}>Generated Article: <Text style={{fontWeight: 400, color: 'rgba(0,0,0,0.6)'}}>{generatedArticle.title}</Text></Title>}
-                    variant="filled"
-                    style={{ borderRadius: 16, boxShadow: '0 12px 28px rgba(0,0,0,0.06)', marginTop: 24 }}
-                  >
-                    <Tabs defaultActiveKey="1" centered type="card" tabBarGutter={8}>
-                      <TabPane tab={<Space><FileTextOutlined/>Preview</Space>} key="1">
-                        <div 
-                          className="html-preview-box" // Keep for potential specific styling of generated HTML
-                          dangerouslySetInnerHTML={{ __html: generatedArticle.preview_html }} 
-                          style={{padding: '24px', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 12, background: '#f8f8f9', minHeight: 250, lineHeight: 1.6}}
-                        />
-                      </TabPane>
-                      <TabPane tab={<Space><CodeOutlined/>Markdown</Space>} key="2">
-                        <div style={{padding: '16px', background: '#2d2d2d', borderRadius: 12, overflowX: 'auto'}}>
-                          <Row justify="end" style={{ marginBottom: 8 }}>
-                            <Col>
-                              <Button
-                                icon={<CopyOutlined />}
-                                onClick={handleCopyMarkdown}
-                                size="small"
-                              >
-                                Copy Markdown
-                              </Button>
-                            </Col>
-                          </Row>
-                          <pre style={{ margin: 0, color: '#f0f0f0', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-                            <code>{generatedArticle.article_markdown}</code>
-                          </pre>
-                        </div>
-                      </TabPane>
-                      {generatedArticle.suggestions && generatedArticle.suggestions.length > 0 && (
-                        <TabPane tab={<Space><BulbOutlined/>Suggestions</Space>} key="3">
-                          <ul style={{ paddingLeft: 20, lineHeight: 1.8 }}>
-                            {generatedArticle.suggestions.map((s, i) => <li key={i}><Text>{s}</Text></li>)}
-                          </ul>
-                        </TabPane>
-                      )}
-                    </Tabs>
-                  </Card>
-                )}
+                <EditableOutput 
+                  generatedArticle={generatedArticle} 
+                  onSave={handleSaveEditedContent}
+                  selectedHtmlStyle={selectedHtmlStyle}
+                />
               </Col>
             </Row>
           )}
