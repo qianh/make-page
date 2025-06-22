@@ -39,6 +39,7 @@ function App() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('default');
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     setIsLlmSelectionValid(!!(selectedLlm.provider && selectedLlm.model_name));
@@ -49,6 +50,16 @@ function App() {
     const savedTheme = loadThemePreference();
     setCurrentTheme(savedTheme);
     applyTheme(getThemeById(savedTheme));
+  }, []);
+
+  // 监听窗口大小变化
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // 主题变化处理
@@ -275,21 +286,173 @@ function App() {
                 }}
                 styles={{body: {padding: 0}}}
               >
-                <div style={{padding: 24, borderBottom: '1px solid var(--theme-border, rgba(0,0,0,0.06))'}}>
-                    <Row justify="space-between" align="middle" style={{height: 48}}>
-                        <Col style={{display: 'flex', alignItems: 'center', height: '100%'}}>
-                            <Space size="large" style={{height: '48px', alignItems: 'center', display: 'flex'}}>
-                                <Title level={4} style={{
-                                    margin: 0, 
-                                    fontWeight: 600,
-                                    color: 'var(--theme-text)',
-                                    fontSize: '20px',
-                                    lineHeight: '32px',
-                                    letterSpacing: '0.5px',
-                                    height: '32px',
+                <div style={{
+                    padding: '32px 32px 24px 32px', 
+                    borderBottom: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
+                    background: 'linear-gradient(135deg, var(--theme-surface, rgba(255,255,255,0.9)) 0%, var(--theme-background, rgba(248,248,249,0.6)) 100%)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    {/* AI创意背景装饰 */}
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        width: '200px',
+                        height: '100px',
+                        background: 'linear-gradient(45deg, var(--theme-primary, #007aff) 0%, transparent 70%)',
+                        opacity: 0.03,
+                        borderRadius: '0 0 0 50px',
+                        zIndex: 0
+                    }} />
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        width: '150px',
+                        height: '80px',
+                        background: 'linear-gradient(-45deg, var(--theme-accent, #34c759) 0%, transparent 70%)',
+                        opacity: 0.03,
+                        borderRadius: '0 50px 0 0',
+                        zIndex: 0
+                    }} />
+                    
+                    <Row justify="space-between" align="top" style={{height: 'auto', minHeight: 56, position: 'relative', zIndex: 1}} gutter={[16, 16]}>
+                        <Col xs={24} md={24} lg={12} xl={14}>
+                            <Space direction="vertical" size="small" style={{width: '100%'}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                    <div style={{
+                                        width: '6px',
+                                        height: '24px',
+                                        background: 'linear-gradient(180deg, var(--theme-primary, #007aff) 0%, var(--theme-accent, #34c759) 100%)',
+                                        borderRadius: '3px',
+                                        boxShadow: '0 2px 8px rgba(var(--theme-primary), 0.3)'
+                                    }} />
+                                    <Title level={4} className="mobile-title" style={{
+                                        margin: 0, 
+                                        fontWeight: 700,
+                                        color: 'var(--theme-text)',
+                                        fontSize: '22px',
+                                        lineHeight: '32px',
+                                        letterSpacing: '0.3px',
+                                        background: 'linear-gradient(135deg, var(--theme-text, #1d1d1f) 0%, var(--theme-primary, #007aff) 100%)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        backgroundClip: 'text'
+                                    }}>Your Content Canvas</Title>
+                                </div>
+                                <Text className="mobile-subtitle" style={{
+                                    color: 'var(--theme-textSecondary, rgba(29,29,31,0.6))',
+                                    fontSize: '14px',
+                                    fontWeight: 400,
+                                    lineHeight: '20px'
+                                }}>
+                                    Craft your ideas into compelling articles with AI
+                                </Text>
+                            </Space>
+                        </Col>
+                        <Col xs={24} md={24} lg={12} xl={10}>
+                            <div className="content-buttons-mobile tablet-center" style={{
+                                display: 'flex', 
+                                justifyContent: 'flex-end', 
+                                alignItems: 'center', 
+                                gap: '12px', 
+                                flexWrap: 'wrap'
+                            }}>
+                                {/* 内容块按钮组 */}
+                                <div style={{
                                     display: 'flex',
-                                    alignItems: 'center'
-                                }}>Your Content Canvas</Title>
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '4px',
+                                    background: 'var(--theme-surface, rgba(255,255,255,0.8))',
+                                    borderRadius: '14px',
+                                    border: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                                    backdropFilter: 'blur(10px)',
+                                    minWidth: 'fit-content'
+                                }}>
+                                    <Badge count={blockCounts.text} size="small" offset={[-3, -3]} style={{zIndex: 10}}>
+                                        <Button 
+                                            icon={<FileTextOutlined />} 
+                                            onClick={() => setIsTextModalOpen(true)} 
+                                            size="small"
+                                            style={{
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                height: '28px',
+                                                padding: '0 10px',
+                                                fontSize: '12px',
+                                                fontWeight: 500,
+                                                color: 'var(--theme-text)',
+                                                background: blockCounts.text > 0 ? 'rgba(0,122,255,0.15)' : 'transparent',
+                                                transition: 'all 0.2s ease'
+                                            }}
+                                        >
+                                            Text
+                                        </Button>
+                                    </Badge>
+                                    <Badge count={blockCounts.code} size="small" offset={[-3, -3]} style={{zIndex: 10}}>
+                                        <Button 
+                                            icon={<CodeOutlined />} 
+                                            onClick={() => setIsCodeModalOpen(true)} 
+                                            size="small"
+                                            style={{
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                height: '28px',
+                                                padding: '0 10px',
+                                                fontSize: '12px',
+                                                fontWeight: 500,
+                                                color: 'var(--theme-text)',
+                                                background: blockCounts.code > 0 ? 'rgba(52,199,89,0.15)' : 'transparent',
+                                                transition: 'all 0.2s ease'
+                                            }}
+                                        >
+                                            Code
+                                        </Button>
+                                    </Badge>
+                                    <Badge count={blockCounts.image} size="small" offset={[-3, -3]} style={{zIndex: 10}}>
+                                        <Button 
+                                            icon={<PictureOutlined />} 
+                                            onClick={() => setIsImageModalOpen(true)} 
+                                            size="small"
+                                            style={{
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                height: '28px',
+                                                padding: '0 10px',
+                                                fontSize: '12px',
+                                                fontWeight: 500,
+                                                color: 'var(--theme-text)',
+                                                background: blockCounts.image > 0 ? 'rgba(255,149,0,0.15)' : 'transparent',
+                                                transition: 'all 0.2s ease'
+                                            }}
+                                        >
+                                            Image
+                                        </Button>
+                                    </Badge>
+                                    <Button 
+                                        icon={<ImportOutlined />} 
+                                        onClick={() => setIsObsidianModalOpen(true)} 
+                                        size="small"
+                                        style={{
+                                            border: 'none',
+                                            borderRadius: '10px',
+                                            height: '28px',
+                                            padding: '0 10px',
+                                            fontSize: '12px',
+                                            fontWeight: 500,
+                                            color: 'var(--theme-text)',
+                                            background: 'transparent',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        Obsidian
+                                    </Button>
+                                </div>
+                                
+                                {/* 生成按钮 */}
                                 <Button
                                     type="primary"
                                     size="large"
@@ -298,34 +461,47 @@ function App() {
                                     loading={isLoading}
                                     disabled={!isLlmSelectionValid || blocks.length === 0}
                                     style={{ 
-                                        minWidth: 180, 
-                                        height: 40,
-                                        borderRadius: 12, 
-                                        backgroundColor: 'var(--theme-primary)',
-                                        borderColor: 'var(--theme-primary)',
+                                        minWidth: windowWidth < 768 ? '160px' : '180px',
+                                        width: windowWidth < 768 ? '100%' : 'auto',
+                                        maxWidth: '200px',
+                                        height: '40px',
+                                        borderRadius: '20px', 
+                                        background: 'linear-gradient(135deg, var(--theme-primary, #007aff) 0%, var(--theme-accent, #34c759) 100%)',
+                                        border: 'none',
                                         color: '#ffffff',
-                                        boxShadow: `0 4px 12px rgba(var(--theme-primary), 0.25)`,
-                                        fontWeight: 500,
-                                        fontSize: 14
+                                        boxShadow: '0 4px 12px rgba(var(--theme-primary), 0.3)',
+                                        fontWeight: 600,
+                                        fontSize: '14px',
+                                        letterSpacing: '0.3px',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.transform = 'translateY(-1px)';
+                                        e.target.style.boxShadow = '0 6px 16px rgba(var(--theme-primary), 0.4)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.transform = 'translateY(0)';
+                                        e.target.style.boxShadow = '0 4px 12px rgba(var(--theme-primary), 0.3)';
                                     }}
                                 >
-                                    {isLoading ? 'Generating...' : 'Weave My Article!'}
+                                    <span style={{position: 'relative', zIndex: 2}}>
+                                        {isLoading ? '🧠 Weaving...' : '✨ Weave Article!'}
+                                    </span>
+                                    {/* 按钮光效 */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: '-100%',
+                                        width: '100%',
+                                        height: '100%',
+                                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                                        animation: isLoading ? 'none' : 'shimmer 2s infinite',
+                                        zIndex: 1
+                                    }} />
                                 </Button>
-                            </Space>
-                        </Col>
-                        <Col style={{display: 'flex', alignItems: 'center', height: '100%'}}>
-                            <Space style={{height: '32px', alignItems: 'center', display: 'flex'}}>
-                                <Badge count={blockCounts.text} size="small" offset={[-2, -2]}>
-                                    <Button icon={<FileTextOutlined />} onClick={() => setIsTextModalOpen(true)} shape="round">Text</Button>
-                                </Badge>
-                                <Badge count={blockCounts.code} size="small" offset={[-2, -2]}>
-                                    <Button icon={<CodeOutlined />} onClick={() => setIsCodeModalOpen(true)} shape="round">Code</Button>
-                                </Badge>
-                                <Badge count={blockCounts.image} size="small" offset={[-2, -2]}>
-                                    <Button icon={<PictureOutlined />} onClick={() => setIsImageModalOpen(true)} shape="round">Image</Button>
-                                </Badge>
-                                <Button icon={<ImportOutlined />} onClick={() => setIsObsidianModalOpen(true)} shape="round">Obsidian</Button>
-                            </Space>
+                            </div>
                         </Col>
                     </Row>
                 </div>

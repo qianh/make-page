@@ -37,21 +37,21 @@ export const themes = {
     name: '深空探索',
     description: '神秘深邃的深空色彩',
     colors: {
-      primary: '#4f46e5',
-      primaryHover: '#3730a3',
-      secondary: '#6b7280',
+      primary: '#6366f1',
+      primaryHover: '#4f46e5',
+      secondary: '#94a3b8',
       background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)',
-      surface: 'rgba(30, 27, 75, 0.85)',
-      surfaceHover: 'rgba(30, 27, 75, 0.95)',
-      text: '#f8fafc',
-      textSecondary: 'rgba(248, 250, 252, 0.7)',
-      border: 'rgba(139, 92, 246, 0.2)',
-      borderHover: 'rgba(139, 92, 246, 0.4)',
-      success: '#10b981',
-      warning: '#f59e0b',
-      error: '#ef4444',
-      accent: '#8b5cf6',
-      accentSecondary: '#a855f7'
+      surface: 'rgba(51, 65, 85, 0.9)',
+      surfaceHover: 'rgba(71, 85, 105, 0.95)',
+      text: '#ffffff',
+      textSecondary: 'rgba(255, 255, 255, 0.8)',
+      border: 'rgba(139, 92, 246, 0.3)',
+      borderHover: 'rgba(139, 92, 246, 0.5)',
+      success: '#22c55e',
+      warning: '#fbbf24',
+      error: '#f87171',
+      accent: '#a78bfa',
+      accentSecondary: '#c4b5fd'
     },
     effects: {
       backdrop: 'blur(15px)',
@@ -190,6 +190,16 @@ export const themes = {
 // 应用主题到CSS变量
 export const applyTheme = (theme) => {
   const root = document.documentElement;
+  const body = document.body;
+  
+  // 移除之前的主题类
+  const themeClasses = Object.keys(themes).map(id => `theme-${id}`);
+  body.classList.remove(...themeClasses);
+  root.removeAttribute('data-theme');
+  
+  // 添加新的主题类和属性
+  body.classList.add(`theme-${theme.id}`);
+  root.setAttribute('data-theme', theme.id);
   
   // 应用颜色变量
   Object.entries(theme.colors).forEach(([key, value]) => {
@@ -202,7 +212,7 @@ export const applyTheme = (theme) => {
   });
   
   // 设置body背景
-  document.body.style.background = theme.colors.background;
+  body.style.background = theme.colors.background;
 };
 
 // 获取主题列表

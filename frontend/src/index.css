@@ -738,12 +738,150 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
               box-shadow 0.3s ease !important;
 }
 
+/* 深色主题文字增强 */
+[data-theme="deepSpace"] .ant-typography,
+[data-theme="deepSpace"] .ant-typography h1,
+[data-theme="deepSpace"] .ant-typography h2,
+[data-theme="deepSpace"] .ant-typography h3,
+[data-theme="deepSpace"] .ant-typography h4,
+[data-theme="deepSpace"] .ant-typography h5,
+[data-theme="deepSpace"] .ant-typography h6 {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+[data-theme="deepSpace"] .ant-typography p,
+[data-theme="deepSpace"] .ant-typography span {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="dark"] .ant-typography,
+[data-theme="dark"] .ant-typography h1,
+[data-theme="dark"] .ant-typography h2,
+[data-theme="dark"] .ant-typography h3,
+[data-theme="dark"] .ant-typography h4,
+[data-theme="dark"] .ant-typography h5,
+[data-theme="dark"] .ant-typography h6 {
+  color: #f1f5f9 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
 /* 特殊主题样式类 */
 .theme-gradient-text {
   background: linear-gradient(135deg, var(--theme-accent), var(--theme-accentSecondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* AI创意动画效果 */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--theme-primary), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--theme-primary), 0);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* AI创意按钮悬停效果 */
+.ai-creative-button:hover {
+  animation: pulse-glow 1.5s infinite;
+}
+
+/* 渐变文字动画 */
+.gradient-text-animated {
+  background: linear-gradient(-45deg, var(--theme-text), var(--theme-primary), var(--theme-accent), var(--theme-primary));
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* 浮动装饰元素 */
+.floating-decoration {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* 响应式布局增强 */
+@media (max-width: 768px) {
+  .ant-row {
+    margin: 0 !important;
+  }
+  
+  .ant-col {
+    padding: 0 8px !important;
+  }
+  
+  /* 移动端按钮组调整 */
+  .content-buttons-mobile {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  /* 移动端文字大小调整 */
+  .mobile-title {
+    font-size: 18px !important;
+    line-height: 28px !important;
+  }
+  
+  .mobile-subtitle {
+    font-size: 13px !important;
+    line-height: 18px !important;
+  }
+}
+
+@media (max-width: 992px) {
+  /* 平板端布局调整 */
+  .tablet-center {
+    justify-content: center !important;
+  }
+}
+
+/* 深色主题按钮增强 */
+[data-theme="deepSpace"] .ant-btn,
+[data-theme="dark"] .ant-btn {
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-btn:not(.ant-btn-primary):hover,
+[data-theme="dark"] .ant-btn:not(.ant-btn-primary):hover {
+  color: var(--theme-text) !important;
+  border-color: var(--theme-borderHover) !important;
+  background: var(--theme-surfaceHover) !important;
 }
 
 .theme-surface {
