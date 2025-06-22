@@ -5,13 +5,15 @@ import LanguageSelector from './components/LanguageSelector';
 import EditableOutput from './components/EditableOutput';
 import ObsidianImporter from './components/ObsidianImporter';
 import FusionDegreeSelector from './components/FusionDegreeSelector';
+import ThemeModal from './components/ThemeModal';
+import { applyTheme, getThemeById, loadThemePreference, saveThemePreference } from './utils/themes';
 import './index.css'; // Global base styles
 
 import {
   Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Spin, message, Modal, Badge
 } from 'antd';
 import {
-  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined
+  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined, SettingOutlined
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
@@ -35,10 +37,26 @@ function App() {
   const [isTextModalOpen, setIsTextModalOpen] = useState(false);
   const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState('default');
 
   useEffect(() => {
     setIsLlmSelectionValid(!!(selectedLlm.provider && selectedLlm.model_name));
   }, [selectedLlm]);
+
+  // 初始化主题
+  useEffect(() => {
+    const savedTheme = loadThemePreference();
+    setCurrentTheme(savedTheme);
+    applyTheme(getThemeById(savedTheme));
+  }, []);
+
+  // 主题变化处理
+  const handleThemeChange = useCallback((themeId) => {
+    setCurrentTheme(themeId);
+    applyTheme(getThemeById(themeId));
+    saveThemePreference(themeId);
+  }, []);
 
   const addBlock = (type) => {
     let newBlock;
@@ -170,7 +188,7 @@ function App() {
   const getBlockCounts = () => {
     const counts = { text: 0, code: 0, image: 0 };
     blocks.forEach(block => {
-      if (counts.hasOwnProperty(block.type)) {
+      if (Object.prototype.hasOwnProperty.call(counts, block.type)) {
         counts[block.type]++;
       }
     });
@@ -180,25 +198,40 @@ function App() {
   const blockCounts = getBlockCounts();
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f8f8f9' }}> {/* Light grey, Apple-like background */}
+    <Layout style={{ minHeight: '100vh', background: 'var(--theme-background, #f8f8f9)' }}>
       <Header style={{ 
-        background: 'rgba(255,255,255,0.8)', /* Translucent white */
-        backdropFilter: 'blur(10px)', /* Frosted glass effect */
+        background: 'var(--theme-surface, rgba(255,255,255,0.8))',
+        backdropFilter: 'var(--theme-backdrop, blur(10px))',
         padding: '0 48px', 
-        borderBottom: '1px solid rgba(0,0,0,0.06)', 
+        borderBottom: '1px solid var(--theme-border, rgba(0,0,0,0.06))', 
         position: 'fixed', 
         zIndex: 1000, 
         width: '100%' 
       }}>
         <Row justify="space-between" align="middle" style={{height: '100%'}}>
           <Col>
-            <Title level={3} style={{ margin: 0, fontWeight: 600, color: '#1d1d1f' /* Apple's dark grey */ }}>
-              <BranchesOutlined style={{ marginRight: 10, color: '#007aff' /* Apple Blue */}} />
+            <Title level={3} style={{ margin: 0, fontWeight: 600, color: 'var(--theme-text, #1d1d1f)' }}>
+              <BranchesOutlined style={{ marginRight: 10, color: 'var(--theme-primary, #007aff)' }} />
               AI Content Weaver
             </Title>
           </Col>
           <Col>
-            {/* Future user profile/settings can go here */}
+            <Button 
+              type="text" 
+              icon={<SettingOutlined />} 
+              onClick={() => setIsThemeModalOpen(true)}
+              style={{
+                borderRadius: '12px',
+                color: 'var(--theme-text, #1d1d1f)',
+                fontSize: '16px',
+                padding: '8px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              主题设置
+            </Button>
           </Col>
         </Row>
       </Header>
@@ -232,19 +265,24 @@ function App() {
             <Col xs={24} lg={16} xl={17}>
               <Card 
                 variant="filled"
-                style={{ borderRadius: 16, boxShadow: '0 12px 28px rgba(0,0,0,0.06)', minHeight: 'calc(100vh - 180px)' }}
-                styles={{body: {padding: 0}}} // Control padding internally
+                style={{ 
+                  borderRadius: 'var(--theme-borderRadius, 16px)', 
+                  boxShadow: 'var(--theme-shadow, 0 12px 28px rgba(0,0,0,0.06))', 
+                  minHeight: 'calc(100vh - 180px)',
+                  background: 'var(--theme-surface, rgba(255,255,255,0.8))',
+                  backdropFilter: 'var(--theme-backdrop, blur(10px))',
+                  border: 'none'
+                }}
+                styles={{body: {padding: 0}}}
               >
-                <div style={{padding: 24, borderBottom: '1px solid rgba(0,0,0,0.06)'}}>
+                <div style={{padding: 24, borderBottom: '1px solid var(--theme-border, rgba(0,0,0,0.06))'}}>
                     <Row justify="space-between" align="middle" style={{height: 48}}>
                         <Col style={{display: 'flex', alignItems: 'center', height: '100%'}}>
                             <Space size="large" style={{height: '48px', alignItems: 'center', display: 'flex'}}>
                                 <Title level={4} style={{
                                     margin: 0, 
                                     fontWeight: 600,
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
+                                    color: 'var(--theme-text)',
                                     fontSize: '20px',
                                     lineHeight: '32px',
                                     letterSpacing: '0.5px',
@@ -263,7 +301,10 @@ function App() {
                                         minWidth: 180, 
                                         height: 40,
                                         borderRadius: 12, 
-                                        boxShadow: '0 4px 12px rgba(0,122,255,0.25)',
+                                        backgroundColor: 'var(--theme-primary)',
+                                        borderColor: 'var(--theme-primary)',
+                                        color: '#ffffff',
+                                        boxShadow: `0 4px 12px rgba(var(--theme-primary), 0.25)`,
                                         fontWeight: 500,
                                         fontSize: 14
                                     }}
@@ -359,7 +400,7 @@ function App() {
             >
               Add New Text Block
             </Button>
-            {blocks.filter(block => block.type === 'text').map((block, index) => {
+            {blocks.filter(block => block.type === 'text').map((block) => {
               const actualIndex = blocks.findIndex(b => b.id === block.id);
               return (
                 <ContentBlockInput
@@ -402,7 +443,7 @@ function App() {
             >
               Add New Code Block
             </Button>
-            {blocks.filter(block => block.type === 'code').map((block, index) => {
+            {blocks.filter(block => block.type === 'code').map((block) => {
               const actualIndex = blocks.findIndex(b => b.id === block.id);
               return (
                 <ContentBlockInput
@@ -445,7 +486,7 @@ function App() {
             >
               Add New Image Block
             </Button>
-            {blocks.filter(block => block.type === 'image').map((block, index) => {
+            {blocks.filter(block => block.type === 'image').map((block) => {
               const actualIndex = blocks.findIndex(b => b.id === block.id);
               return (
                 <ContentBlockInput
@@ -466,6 +507,13 @@ function App() {
           </Space>
         </div>
       </Modal>
+
+      <ThemeModal
+        isOpen={isThemeModalOpen}
+        onClose={() => setIsThemeModalOpen(false)}
+        currentTheme={currentTheme}
+        onThemeChange={handleThemeChange}
+      />
     </Layout>
   );
 }

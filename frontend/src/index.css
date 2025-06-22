@@ -1,11 +1,32 @@
-\
 :root {
-  /* Color Palette */
-  --primary-color: #007bff; /* Vibrant Blue */
-  --primary-hover-color: #0056b3;
-  --secondary-color: #6c757d; /* Cool Gray */
+  /* 主题系统 CSS 变量 - 这些将被 JavaScript 动态覆盖 */
+  --theme-primary: #007aff;
+  --theme-primaryHover: #0051d5;
+  --theme-secondary: #8e8e93;
+  --theme-background: #f8f8f9;
+  --theme-surface: rgba(255,255,255,0.8);
+  --theme-surfaceHover: rgba(255,255,255,0.9);
+  --theme-text: #1d1d1f;
+  --theme-textSecondary: rgba(0,0,0,0.6);
+  --theme-border: rgba(0,0,0,0.06);
+  --theme-borderHover: rgba(0,0,0,0.12);
+  --theme-success: #52c41a;
+  --theme-warning: #faad14;
+  --theme-error: #ff4d4f;
+  --theme-accent: #667eea;
+  --theme-accentSecondary: #764ba2;
+  --theme-backdrop: blur(10px);
+  --theme-shadow: 0 12px 28px rgba(0,0,0,0.06);
+  --theme-shadowHover: 0 16px 32px rgba(0,0,0,0.12);
+  --theme-borderRadius: 16px;
+  --theme-borderRadiusSmall: 8px;
+
+  /* 旧版变量保持兼容性 */
+  --primary-color: var(--theme-primary);
+  --primary-hover-color: var(--theme-primaryHover);
+  --secondary-color: var(--theme-secondary);
   --secondary-hover-color: #545b62;
-  --accent-color: #17a2b8; /* Teal */
+  --accent-color: var(--theme-accent);
   --accent-hover-color: #117a8b;
   
   --text-color-primary: #212529; /* Dark Gray for main text */
@@ -72,11 +93,11 @@ body {
   font-family: var(--font-family-sans-serif);
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
-  color: var(--text-color-primary);
-  background-color: var(--bg-color);
+  color: var(--theme-text, var(--text-color-primary));
+  background: var(--theme-background, var(--bg-color));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease; /* For potential dark mode */
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* 平滑的主题切换动画 */
 }
 
 code, pre {
@@ -500,4 +521,192 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
 /* 生成内容中的脚本标签限制 */
 .html-preview-box script {
   display: none !important;
+}
+
+/* ===== 主题系统样式 ===== */
+
+/* 主题变量应用到组件 */
+.ant-layout {
+  background: var(--theme-background) !important;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ant-layout-header {
+  background: var(--theme-surface) !important;
+  backdrop-filter: var(--theme-backdrop) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ant-card {
+  background: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ant-card:hover {
+  border-color: var(--theme-borderHover) !important;
+  box-shadow: var(--theme-shadowHover) !important;
+}
+
+.ant-typography {
+  color: var(--theme-text) !important;
+  transition: color 0.3s ease;
+}
+
+.ant-typography.ant-typography-secondary {
+  color: var(--theme-textSecondary) !important;
+}
+
+/* 按钮主题化 */
+.ant-btn-primary {
+  background: var(--theme-primary) !important;
+  border-color: var(--theme-primary) !important;
+  color: #ffffff !important;
+  transition: all 0.3s ease;
+}
+
+.ant-btn-primary:hover {
+  background: var(--theme-primaryHover) !important;
+  border-color: var(--theme-primaryHover) !important;
+  color: #ffffff !important;
+}
+
+.ant-btn-primary:focus {
+  background: var(--theme-primary) !important;
+  border-color: var(--theme-primary) !important;
+  color: #ffffff !important;
+}
+
+.ant-btn-primary:active {
+  background: var(--theme-primaryHover) !important;
+  border-color: var(--theme-primaryHover) !important;
+  color: #ffffff !important;
+}
+
+/* 输入框主题化 */
+.ant-input,
+.ant-input-number,
+.ant-select-selector {
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text) !important;
+  transition: all 0.3s ease;
+}
+
+.ant-input:focus,
+.ant-input-number:focus,
+.ant-select-focused .ant-select-selector {
+  border-color: var(--theme-primary) !important;
+  box-shadow: 0 0 0 2px rgba(var(--theme-primary), 0.2) !important;
+}
+
+/* 模态框主题化 */
+.ant-modal-content {
+  background: var(--theme-surface) !important;
+  backdrop-filter: var(--theme-backdrop) !important;
+  transition: all 0.3s ease;
+}
+
+.ant-modal-header {
+  background: var(--theme-surface) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+}
+
+.ant-modal-title {
+  color: var(--theme-text) !important;
+}
+
+/* 折叠面板主题化 */
+.ant-collapse {
+  background: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: var(--theme-borderRadius) !important;
+}
+
+.ant-collapse-header {
+  background: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  transition: all 0.3s ease;
+}
+
+.ant-collapse-header:hover {
+  background: var(--theme-surfaceHover) !important;
+}
+
+.ant-collapse-content {
+  background: var(--theme-surface) !important;
+  border-top: 1px solid var(--theme-border) !important;
+}
+
+/* 选择器下拉菜单主题化 */
+.ant-select-dropdown {
+  background: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border) !important;
+  box-shadow: var(--theme-shadow) !important;
+  backdrop-filter: var(--theme-backdrop) !important;
+}
+
+.ant-select-item {
+  color: var(--theme-text) !important;
+  transition: all 0.3s ease;
+}
+
+.ant-select-item:hover {
+  background: var(--theme-surfaceHover) !important;
+}
+
+.ant-select-item-option-selected {
+  background: rgba(var(--theme-primary), 0.1) !important;
+  color: var(--theme-primary) !important;
+}
+
+/* 标签主题化 */
+.ant-badge {
+  color: var(--theme-text) !important;
+}
+
+.ant-badge-count {
+  background: var(--theme-primary) !important;
+  border-color: var(--theme-primary) !important;
+}
+
+/* 空状态主题化 */
+.ant-empty {
+  color: var(--theme-textSecondary) !important;
+}
+
+/* 分割线主题化 */
+.ant-divider {
+  border-color: var(--theme-border) !important;
+}
+
+/* 主题切换动画 */
+* {
+  transition: background-color 0.3s ease, 
+              border-color 0.3s ease, 
+              color 0.3s ease,
+              box-shadow 0.3s ease !important;
+}
+
+/* 特殊主题样式类 */
+.theme-gradient-text {
+  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accentSecondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.theme-surface {
+  background: var(--theme-surface) !important;
+  backdrop-filter: var(--theme-backdrop) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: var(--theme-borderRadius) !important;
+  box-shadow: var(--theme-shadow) !important;
+  transition: all 0.3s ease;
+}
+
+.theme-surface:hover {
+  box-shadow: var(--theme-shadowHover) !important;
+  border-color: var(--theme-borderHover) !important;
 }

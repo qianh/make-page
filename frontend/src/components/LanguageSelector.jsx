@@ -239,10 +239,11 @@ function LanguageSelector({
       defaultActiveKey={['1']} // Default expanded
       size="large"
       style={{ 
-        borderRadius: 16, 
-        boxShadow: '0 12px 28px rgba(0,0,0,0.06)',
+        borderRadius: 'var(--theme-borderRadius, 16px)', 
+        boxShadow: 'var(--theme-shadow, 0 12px 28px rgba(0,0,0,0.06))',
         marginBottom: 24,
-        background: 'rgba(255,255,255,0.8)',
+        background: 'var(--theme-surface, rgba(255,255,255,0.8))',
+        backdropFilter: 'var(--theme-backdrop, blur(10px))',
         border: 'none'
       }}
     />
