@@ -941,6 +941,7 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
 [data-theme="deepSpace"] .ant-input-number:hover,
 [data-theme="dark"] .ant-input-number:hover {
   border-color: var(--theme-borderHover) !important;
+  background: var(--theme-surfaceHover) !important;
 }
 
 [data-theme="deepSpace"] .ant-input-number:focus,
@@ -949,16 +950,35 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
 [data-theme="dark"] .ant-input-number-focused {
   border-color: var(--theme-primary) !important;
   box-shadow: 0 0 0 2px rgba(var(--theme-primary), 0.2) !important;
+  background: var(--theme-surface) !important;
 }
 
 [data-theme="deepSpace"] .ant-input-number-input,
 [data-theme="dark"] .ant-input-number-input {
   color: var(--theme-text) !important;
+  background: transparent !important;
 }
 
 [data-theme="deepSpace"] .ant-input-number-input::placeholder,
 [data-theme="dark"] .ant-input-number-input::placeholder {
   color: var(--theme-textSecondary) !important;
+}
+
+[data-theme="deepSpace"] .ant-input-number-handler-wrap,
+[data-theme="dark"] .ant-input-number-handler-wrap {
+  background: var(--theme-surface) !important;
+  border-left-color: var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-input-number-handler,
+[data-theme="dark"] .ant-input-number-handler {
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-input-number-handler:hover,
+[data-theme="dark"] .ant-input-number-handler:hover {
+  color: var(--theme-primary) !important;
 }
 
 /* 深色主题空状态和警告 */
@@ -987,6 +1007,62 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
 [data-theme="dark"] .ant-tooltip-arrow::before {
   background: var(--theme-surface) !important;
   border-color: var(--theme-border) !important;
+}
+
+/* 深色主题模态框增强 */
+[data-theme="deepSpace"] .ant-modal,
+[data-theme="dark"] .ant-modal {
+  color: var(--theme-text) !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-content,
+[data-theme="dark"] .ant-modal-content {
+  background: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-header,
+[data-theme="dark"] .ant-modal-header {
+  background: var(--theme-surface) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-title,
+[data-theme="dark"] .ant-modal-title {
+  color: var(--theme-text) !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-close,
+[data-theme="dark"] .ant-modal-close {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-close:hover,
+[data-theme="dark"] .ant-modal-close:hover {
+  color: var(--theme-text) !important;
+  background: var(--theme-surfaceHover) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-close-x,
+[data-theme="dark"] .ant-modal-close-x {
+  color: var(--theme-text) !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-body,
+[data-theme="dark"] .ant-modal-body {
+  color: var(--theme-text) !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-footer,
+[data-theme="dark"] .ant-modal-footer {
+  background: var(--theme-surface) !important;
+  border-top: 1px solid var(--theme-border) !important;
 }
 
 .theme-surface {

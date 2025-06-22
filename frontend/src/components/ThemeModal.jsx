@@ -105,19 +105,19 @@ const ThemeModal = ({ isOpen, onClose, currentTheme, onThemeChange }) => {
           style={{
             cursor: 'pointer',
             borderRadius: '12px',
-            border: isSelected ? `2px solid ${theme.colors.primary}` : '1px solid rgba(0,0,0,0.06)',
-            background: isSelected ? 'rgba(24, 144, 255, 0.05)' : 'white',
+            border: isSelected ? `2px solid ${theme.colors.primary}` : '1px solid var(--theme-border)',
+            background: isSelected ? 'var(--theme-surfaceHover)' : 'var(--theme-surface)',
             transition: 'all 0.3s ease',
             transform: isSelected ? 'scale(1.02)' : 'scale(1)',
             boxShadow: isSelected 
-              ? '0 8px 24px rgba(24, 144, 255, 0.15)' 
-              : '0 4px 12px rgba(0,0,0,0.05)'
+              ? `0 8px 24px ${theme.colors.primary}40` 
+              : 'var(--theme-shadow)'
           }}
         >
           <Space direction="vertical" size="small" style={{ width: '100%' }}>
             <Row justify="space-between" align="middle">
               <Col>
-                <Text strong style={{ fontSize: '13px' }}>
+                <Text strong style={{ fontSize: '13px', color: 'var(--theme-text)' }}>
                   {theme.name}
                 </Text>
               </Col>
@@ -140,7 +140,7 @@ const ThemeModal = ({ isOpen, onClose, currentTheme, onThemeChange }) => {
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }} />
             
-            <Text type="secondary" style={{ fontSize: '11px', lineHeight: '1.2' }}>
+            <Text style={{ fontSize: '11px', lineHeight: '1.2', color: 'var(--theme-textSecondary)' }}>
               {theme.description}
             </Text>
           </Space>
@@ -154,7 +154,7 @@ const ThemeModal = ({ isOpen, onClose, currentTheme, onThemeChange }) => {
       title={
         <Space>
           <BgColorsOutlined style={{ color: 'var(--theme-primary, #007aff)' }} />
-          <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+          <Title level={4} style={{ margin: 0, fontWeight: 600, color: 'var(--theme-text)' }}>
             主题风格设置
           </Title>
         </Space>
@@ -174,7 +174,7 @@ const ThemeModal = ({ isOpen, onClose, currentTheme, onThemeChange }) => {
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {/* 下拉选择器 */}
         <div>
-          <Text strong style={{ marginBottom: 8, display: 'block' }}>
+          <Text strong style={{ marginBottom: 8, display: 'block', color: 'var(--theme-text)' }}>
             选择主题
           </Text>
           <Select
@@ -198,7 +198,7 @@ const ThemeModal = ({ isOpen, onClose, currentTheme, onThemeChange }) => {
 
         {/* 主题卡片网格 */}
         <div>
-          <Text strong style={{ marginBottom: 12, display: 'block' }}>
+          <Text strong style={{ marginBottom: 12, display: 'block', color: 'var(--theme-text)' }}>
             快速选择
           </Text>
           <Row gutter={[12, 12]}>
