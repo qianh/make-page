@@ -7,7 +7,7 @@ const translations = {
   zh: {
     // 页面标题和描述
     appTitle: 'AI 内容编织器',
-    appDescription: '一个智能的内容融合平台，将您的想法编织成精美的文章',
+    appDescription: '将您的想法编织成精美的文章',
     
     // 按钮
     addText: '添加文本',
@@ -145,7 +145,7 @@ const translations = {
   en: {
     // Page title and description
     appTitle: 'AI Content Weaver',
-    appDescription: 'An intelligent content fusion platform that weaves your ideas into beautiful articles',
+    appDescription: 'Weave your ideas into beautiful articles',
     
     // Buttons
     addText: 'Add Text',

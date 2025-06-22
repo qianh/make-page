@@ -328,7 +328,8 @@ function AppContent() {
                     borderBottom: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
                     background: 'linear-gradient(135deg, var(--theme-surface, rgba(255,255,255,0.9)) 0%, var(--theme-background, rgba(248,248,249,0.6)) 100%)',
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    borderRadius: 'var(--theme-borderRadius, 16px) var(--theme-borderRadius, 16px) 0 0'
                 }}>
                     {/* AI创意背景装饰 */}
                     <div style={{
