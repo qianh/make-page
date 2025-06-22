@@ -609,12 +609,27 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
 }
 
 .ant-modal-header {
-  background: var(--theme-surface) !important;
-  border-bottom: 1px solid var(--theme-border) !important;
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: 24px 24px 0 24px !important;
 }
 
 .ant-modal-title {
   color: var(--theme-text) !important;
+}
+
+/* 确保模态框标题与关闭按钮水平对齐 */
+.ant-modal-close {
+  top: 24px !important;
+  right: 24px !important;
+}
+
+.ant-modal-close-x {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 
 /* 折叠面板主题化 */
@@ -637,6 +652,40 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
 .ant-collapse-content {
   background: var(--theme-surface) !important;
   border-top: 1px solid var(--theme-border) !important;
+}
+
+/* 修复折叠面板顶部角落的圆角问题 */
+.ant-collapse > .ant-collapse-item:first-child > .ant-collapse-header {
+  border-radius: var(--theme-borderRadius) var(--theme-borderRadius) 0 0 !important;
+}
+
+.ant-collapse > .ant-collapse-item:last-child > .ant-collapse-header {
+  border-radius: 0 0 var(--theme-borderRadius) var(--theme-borderRadius) !important;
+}
+
+.ant-collapse > .ant-collapse-item:only-child > .ant-collapse-header {
+  border-radius: var(--theme-borderRadius) !important;
+}
+
+.ant-collapse > .ant-collapse-item:first-child:last-child > .ant-collapse-header {
+  border-radius: var(--theme-borderRadius) !important;
+}
+
+/* 当折叠面板展开时，调整圆角 */
+.ant-collapse > .ant-collapse-item:last-child.ant-collapse-item-active > .ant-collapse-header {
+  border-radius: 0 !important;
+}
+
+.ant-collapse > .ant-collapse-item:only-child.ant-collapse-item-active > .ant-collapse-header {
+  border-radius: var(--theme-borderRadius) var(--theme-borderRadius) 0 0 !important;
+}
+
+.ant-collapse > .ant-collapse-item:last-child > .ant-collapse-content {
+  border-radius: 0 0 var(--theme-borderRadius) var(--theme-borderRadius) !important;
+}
+
+.ant-collapse > .ant-collapse-item:only-child > .ant-collapse-content {
+  border-radius: 0 0 var(--theme-borderRadius) var(--theme-borderRadius) !important;
 }
 
 /* 选择器下拉菜单主题化 */
