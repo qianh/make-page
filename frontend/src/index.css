@@ -870,18 +870,100 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
   }
 }
 
-/* 深色主题组件增强 */
+/* 深色主题按钮组件增强 */
 [data-theme="deepSpace"] .ant-btn,
 [data-theme="dark"] .ant-btn {
   color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
   border-color: var(--theme-border) !important;
 }
 
 [data-theme="deepSpace"] .ant-btn:not(.ant-btn-primary):hover,
 [data-theme="dark"] .ant-btn:not(.ant-btn-primary):hover {
   color: var(--theme-text) !important;
-  border-color: var(--theme-borderHover) !important;
   background: var(--theme-surfaceHover) !important;
+  border-color: var(--theme-borderHover) !important;
+}
+
+[data-theme="deepSpace"] .ant-btn:not(.ant-btn-primary):focus,
+[data-theme="dark"] .ant-btn:not(.ant-btn-primary):focus {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-primary) !important;
+}
+
+[data-theme="deepSpace"] .ant-btn:not(.ant-btn-primary):active,
+[data-theme="dark"] .ant-btn:not(.ant-btn-primary):active {
+  color: var(--theme-text) !important;
+  background: var(--theme-surfaceHover) !important;
+  border-color: var(--theme-primary) !important;
+}
+
+/* 深色主题默认按钮 */
+[data-theme="deepSpace"] .ant-btn-default,
+[data-theme="dark"] .ant-btn-default {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-btn-default:hover,
+[data-theme="dark"] .ant-btn-default:hover {
+  color: var(--theme-text) !important;
+  background: var(--theme-surfaceHover) !important;
+  border-color: var(--theme-borderHover) !important;
+}
+
+[data-theme="deepSpace"] .ant-btn-default:focus,
+[data-theme="dark"] .ant-btn-default:focus {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-primary) !important;
+}
+
+/* 强制覆盖按钮的白色背景 */
+[data-theme="deepSpace"] .ant-btn:not(.ant-btn-primary):not(.ant-btn-danger):not(.ant-btn-link):not(.ant-btn-text),
+[data-theme="dark"] .ant-btn:not(.ant-btn-primary):not(.ant-btn-danger):not(.ant-btn-link):not(.ant-btn-text) {
+  background-color: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-btn:not(.ant-btn-primary):not(.ant-btn-danger):not(.ant-btn-link):not(.ant-btn-text):hover,
+[data-theme="dark"] .ant-btn:not(.ant-btn-primary):not(.ant-btn-danger):not(.ant-btn-link):not(.ant-btn-text):hover {
+  background-color: var(--theme-surfaceHover) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-borderHover) !important;
+}
+
+/* 特别处理Word Count按钮 */
+[data-theme="deepSpace"] .ant-space .ant-btn,
+[data-theme="dark"] .ant-space .ant-btn {
+  background-color: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-space .ant-btn:hover,
+[data-theme="dark"] .ant-space .ant-btn:hover {
+  background-color: var(--theme-surfaceHover) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-borderHover) !important;
+}
+
+/* 特别处理模态框底部按钮 */
+[data-theme="deepSpace"] .ant-modal-footer .ant-btn,
+[data-theme="dark"] .ant-modal-footer .ant-btn {
+  background-color: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-modal-footer .ant-btn:hover,
+[data-theme="dark"] .ant-modal-footer .ant-btn:hover {
+  background-color: var(--theme-surfaceHover) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-borderHover) !important;
 }
 
 /* 深色主题表单和描述组件 */
