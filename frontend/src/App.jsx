@@ -6,14 +6,15 @@ import EditableOutput from './components/EditableOutput';
 import ObsidianImporter from './components/ObsidianImporter';
 import FusionDegreeSelector from './components/FusionDegreeSelector';
 import ThemeModal from './components/ThemeModal';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { applyTheme, getThemeById, loadThemePreference, saveThemePreference } from './utils/themes';
 import './index.css'; // Global base styles
 
 import {
-  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Spin, message, Modal, Badge
+  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Spin, message, Modal, Badge, Dropdown
 } from 'antd';
 import {
-  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined, SettingOutlined
+  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined, SettingOutlined, GlobalOutlined
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
@@ -21,7 +22,8 @@ const { Title, Paragraph, Text } = Typography;
 
 const generateId = () => crypto.randomUUID();
 
-function App() {
+function AppContent() {
+  const { t, currentLanguage, changeLanguage } = useLanguage();
   const [blocks, setBlocks] = useState([]);
   const [selectedLlm, setSelectedLlm] = useState({ provider: '', model_name: '' });
   const [selectedLanguage, setSelectedLanguage] = useState('zh');
@@ -124,20 +126,20 @@ function App() {
 
   const handleGenerate = async () => {
     if (!isLlmSelectionValid) {
-      message.error("Please select an AI provider and model first.");
+      message.error(t('invalidLlmSelection'));
       setGeneratedArticle({
         status: "error",
-        title: "LLM Not Selected",
-        subTitle: "Please select an AI provider and model from the configuration section before generating content.",
+        title: t('invalidLlmSelection'),
+        subTitle: t('invalidLlmSelection'),
       });
       return;
     }
     if (blocks.length === 0) {
-      message.error("Please add at least one content block before generating.");
+      message.error(t('noBlocks'));
       setGeneratedArticle({
         status: "error",
-        title: "No Content Blocks",
-        subTitle: "Add some content blocks to your canvas to start generating an article.",
+        title: t('noBlocks'),
+        subTitle: t('noBlocksDesc'),
       });
       return;
     }
@@ -175,14 +177,14 @@ function App() {
       }
       const data = await response.json();
       setGeneratedArticle({ status: "success", ...data });
-      message.success("Article generated successfully!");
+      message.success(t('generationSuccess') || "Article generated successfully!");
     } catch (error) {
       console.error("Generation error:", error);
-      message.error(`Content generation failed: ${error.message}`);
+      message.error(`${t('generationError')}: ${error.message}`);
       setGeneratedArticle({
         status: "error",
-        title: "Content Generation Failed",
-        subTitle: error.message || "An unexpected error occurred. Please check your inputs, server logs, or try a different model.",
+        title: t('generationError'),
+        subTitle: error.message || t('tryAgain'),
       });
     } finally {
       setIsLoading(false);
@@ -223,26 +225,61 @@ function App() {
           <Col>
             <Title level={3} style={{ margin: 0, fontWeight: 600, color: 'var(--theme-text, #1d1d1f)' }}>
               <BranchesOutlined style={{ marginRight: 10, color: 'var(--theme-primary, #007aff)' }} />
-              AI Content Weaver
+              {t('appTitle')}
             </Title>
           </Col>
           <Col>
-            <Button 
-              type="text" 
-              icon={<SettingOutlined />} 
-              onClick={() => setIsThemeModalOpen(true)}
-              style={{
-                borderRadius: '12px',
-                color: 'var(--theme-text, #1d1d1f)',
-                fontSize: '16px',
-                padding: '8px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              主题设置
-            </Button>
+            <Space size="small">
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'zh',
+                      label: t('chinese'),
+                      onClick: () => changeLanguage('zh')
+                    },
+                    {
+                      key: 'en', 
+                      label: t('english'),
+                      onClick: () => changeLanguage('en')
+                    }
+                  ]
+                }}
+                placement="bottomRight"
+              >
+                <Button 
+                  type="text" 
+                  icon={<GlobalOutlined />}
+                  style={{
+                    borderRadius: '12px',
+                    color: 'var(--theme-text, #1d1d1f)',
+                    fontSize: '14px',
+                    padding: '6px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  {currentLanguage === 'zh' ? '中文' : 'EN'}
+                </Button>
+              </Dropdown>
+              <Button 
+                type="text" 
+                icon={<SettingOutlined />} 
+                onClick={() => setIsThemeModalOpen(true)}
+                style={{
+                  borderRadius: '12px',
+                  color: 'var(--theme-text, #1d1d1f)',
+                  fontSize: '14px',
+                  padding: '6px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {t('settings')}
+              </Button>
+            </Space>
           </Col>
         </Row>
       </Header>
@@ -339,7 +376,7 @@ function App() {
                                         WebkitBackgroundClip: 'text',
                                         WebkitTextFillColor: 'transparent',
                                         backgroundClip: 'text'
-                                    }}>Your Content Canvas</Title>
+                                    }}>{currentLanguage === 'zh' ? '您的内容画布' : 'Your Content Canvas'}</Title>
                                 </div>
                                 <Text className="mobile-subtitle" style={{
                                     color: 'var(--theme-textSecondary, rgba(29,29,31,0.6))',
@@ -347,7 +384,7 @@ function App() {
                                     fontWeight: 400,
                                     lineHeight: '20px'
                                 }}>
-                                    Craft your ideas into compelling articles with AI
+                                    {t('appDescription')}
                                 </Text>
                             </Space>
                         </Col>
@@ -395,7 +432,7 @@ function App() {
                                     }}
                                 >
                                     <span style={{position: 'relative', zIndex: 2}}>
-                                        {isLoading ? '🧠 Weaving...' : '✨ Weave Article!'}
+                                        {isLoading ? t('generating') : t('generateArticle')}
                                     </span>
                                     {/* 按钮光效 */}
                                     <div style={{
@@ -441,7 +478,7 @@ function App() {
                                                 transition: 'all 0.2s ease'
                                             }}
                                         >
-                                            Text
+                                            {t('addText')}
                                         </Button>
                                     </Badge>
                                     <Badge count={blockCounts.code} size="small" offset={[-3, -3]} style={{zIndex: 10}}>
@@ -461,7 +498,7 @@ function App() {
                                                 transition: 'all 0.2s ease'
                                             }}
                                         >
-                                            Code
+                                            {t('addCode')}
                                         </Button>
                                     </Badge>
                                     <Badge count={blockCounts.image} size="small" offset={[-3, -3]} style={{zIndex: 10}}>
@@ -481,7 +518,7 @@ function App() {
                                                 transition: 'all 0.2s ease'
                                             }}
                                         >
-                                            Image
+                                            {t('addImage')}
                                         </Button>
                                     </Badge>
                                     <Button 
@@ -500,7 +537,7 @@ function App() {
                                             transition: 'all 0.2s ease'
                                         }}
                                     >
-                                        Obsidian
+                                        {t('importObsidian')}
                                     </Button>
                                 </div>
                             </div>
@@ -526,11 +563,14 @@ function App() {
                       styles={{image: { height: 100, marginBottom: 24, marginTop: 60}}}
                       description={
                         <Space direction="vertical" align="center">
-                          <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>Ready to Generate</Title>
-                          <Paragraph style={{color: 'rgba(0,0,0,0.45)'}}>Add content using the buttons above, then generate your article.</Paragraph>
+                          <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>{currentLanguage === 'zh' ? '准备生成' : 'Ready to Generate'}</Title>
+                          <Paragraph style={{color: 'rgba(0,0,0,0.45)'}}>{currentLanguage === 'zh' ? '使用上方按钮添加内容，然后生成您的文章。' : 'Add content using the buttons above, then generate your article.'}</Paragraph>
                           {blocks.length > 0 && (
                             <Text style={{color: 'rgba(0,0,0,0.6)', fontSize: '14px'}}>
-                              {blockCounts.text} Text, {blockCounts.code} Code, {blockCounts.image} Image blocks ready
+                              {currentLanguage === 'zh' ? 
+                                `${blockCounts.text} 个文本，${blockCounts.code} 个代码，${blockCounts.image} 个图片块已准备` :
+                                `${blockCounts.text} Text, ${blockCounts.code} Code, ${blockCounts.image} Image blocks ready`
+                              }
                             </Text>
                           )}
                         </Space>
@@ -545,7 +585,7 @@ function App() {
       </Content>
       
       <Modal
-        title="Import from Obsidian Vault"
+        title={t('obsidianImporter')}
         open={isObsidianModalOpen}
         onCancel={() => setIsObsidianModalOpen(false)}
         footer={null}
@@ -558,7 +598,7 @@ function App() {
       </Modal>
 
       <Modal
-        title={`Text Content Management (${blockCounts.text} items)`}
+        title={`${t('addTextBlock')} (${blockCounts.text} ${currentLanguage === 'zh' ? '项' : 'items'})`}
         open={isTextModalOpen}
         onCancel={() => setIsTextModalOpen(false)}
         footer={null}
@@ -576,7 +616,7 @@ function App() {
               block
               size="large"
             >
-              Add New Text Block
+              {currentLanguage === 'zh' ? '添加新文本块' : 'Add New Text Block'}
             </Button>
             {blocks.filter(block => block.type === 'text').map((block) => {
               const actualIndex = blocks.findIndex(b => b.id === block.id);
@@ -593,7 +633,7 @@ function App() {
             {blocks.filter(block => block.type === 'text').length === 0 && (
               <Empty 
                 image={<FileTextOutlined style={{ fontSize: 48, color: '#007aff' }} />}
-                description="No text blocks yet. Click above to add your first text block."
+                description={currentLanguage === 'zh' ? '还没有文本块。点击上方添加您的第一个文本块。' : 'No text blocks yet. Click above to add your first text block.'}
               />
             )}
           </Space>
@@ -601,7 +641,7 @@ function App() {
       </Modal>
 
       <Modal
-        title={`Code Content Management (${blockCounts.code} items)`}
+        title={`${t('addCodeBlock')} (${blockCounts.code} ${currentLanguage === 'zh' ? '项' : 'items'})`}
         open={isCodeModalOpen}
         onCancel={() => setIsCodeModalOpen(false)}
         footer={null}
@@ -619,7 +659,7 @@ function App() {
               block
               size="large"
             >
-              Add New Code Block
+              {currentLanguage === 'zh' ? '添加新代码块' : 'Add New Code Block'}
             </Button>
             {blocks.filter(block => block.type === 'code').map((block) => {
               const actualIndex = blocks.findIndex(b => b.id === block.id);
@@ -636,7 +676,7 @@ function App() {
             {blocks.filter(block => block.type === 'code').length === 0 && (
               <Empty 
                 image={<CodeOutlined style={{ fontSize: 48, color: '#007aff' }} />}
-                description="No code blocks yet. Click above to add your first code block."
+                description={currentLanguage === 'zh' ? '还没有代码块。点击上方添加您的第一个代码块。' : 'No code blocks yet. Click above to add your first code block.'}
               />
             )}
           </Space>
@@ -644,7 +684,7 @@ function App() {
       </Modal>
 
       <Modal
-        title={`Image Content Management (${blockCounts.image} items)`}
+        title={`${t('addImageBlock')} (${blockCounts.image} ${currentLanguage === 'zh' ? '项' : 'items'})`}
         open={isImageModalOpen}
         onCancel={() => setIsImageModalOpen(false)}
         footer={null}
@@ -662,7 +702,7 @@ function App() {
               block
               size="large"
             >
-              Add New Image Block
+              {currentLanguage === 'zh' ? '添加新图片块' : 'Add New Image Block'}
             </Button>
             {blocks.filter(block => block.type === 'image').map((block) => {
               const actualIndex = blocks.findIndex(b => b.id === block.id);
@@ -679,7 +719,7 @@ function App() {
             {blocks.filter(block => block.type === 'image').length === 0 && (
               <Empty 
                 image={<PictureOutlined style={{ fontSize: 48, color: '#007aff' }} />}
-                description="No image blocks yet. Click above to add your first image block."
+                description={currentLanguage === 'zh' ? '还没有图片块。点击上方添加您的第一个图片块。' : 'No image blocks yet. Click above to add your first image block.'}
               />
             )}
           </Space>
@@ -693,6 +733,14 @@ function App() {
         onThemeChange={handleThemeChange}
       />
     </Layout>
+  );
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

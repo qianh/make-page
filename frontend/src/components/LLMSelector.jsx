@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Select, Card, Form, Spin, Alert, Descriptions, Typography, Row, Col, Space, Collapse } from 'antd';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
 
 const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
+  const { t } = useLanguage();
   const [providers, setProviders] = useState([]);
   const [selectedProviderId, setSelectedProviderId] = useState('');
   const [selectedModelId, setSelectedModelId] = useState('');
@@ -42,7 +44,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
         }
       } catch (e) {
         console.error("Failed to fetch LLMs:", e);
-        setError("Failed to load AI models. Please check your connection or try again later.");
+        setError(t('failedToLoadModels'));
         setProviders([]);
       } finally {
         setLoading(false);
@@ -93,7 +95,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
     return (
       <Card variant="filled" style={{ textAlign: 'center', boxShadow: 'none', background: 'transparent' }}>
         <Spin size="large">
-          <div style={{ padding: 20 }}>Loading AI Models...</div>
+          <div style={{ padding: 20 }}>{t('loadingAiModels')}</div>
         </Spin>
       </Card>
     );
@@ -102,7 +104,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
   if (error) {
     return (
       <Alert 
-        message={<Title level={5} style={{marginBottom: 0}}>Loading Error</Title>} 
+        message={<Title level={5} style={{marginBottom: 0}}>{t('loadingError')}</Title>} 
         description={error} 
         type="error" 
         showIcon 
@@ -114,8 +116,8 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
   if (providers.length === 0 && !loading) { // Ensure not to show this during initial load
     return (
       <Alert 
-        message={<Title level={5} style={{marginBottom: 0}}>No Models Available</Title>} 
-        description="No AI models could be fetched. Please check configuration or try again." 
+        message={<Title level={5} style={{marginBottom: 0}}>{t('noModelsAvailable')}</Title>} 
+        description={t('noModelsFetched')} 
         type="warning" 
         showIcon 
         style={{borderRadius: 12}}
@@ -128,7 +130,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
       key: '1',
       label: (
         <Title level={4} style={{ margin: 0, fontWeight: 600, color: 'var(--theme-text)' }}>
-          Configure AI Model
+          {t('configureAiModel')}
         </Title>
       ),
       children: (
@@ -136,7 +138,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
           <Form layout="vertical">
             <Row gutter={24}>
               <Col xs={24} md={12}>
-                <Form.Item label={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>Provider</Text>} style={{marginBottom: 16}}>
+                <Form.Item label={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>{t('provider')}</Text>} style={{marginBottom: 16}}>
                   <Select
                     id="llm-provider"
                     value={selectedProviderId}
@@ -144,7 +146,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
                     size="large"
                     style={{ width: '100%' }}
                     aria-label="LLM Provider"
-                    placeholder="Select a provider"
+                    placeholder={t('selectLlmProvider')}
                   >
                     {providers.map(provider => (
                       <Option key={provider.provider_id} value={provider.provider_id}>
@@ -155,7 +157,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
                 </Form.Item>
               </Col>
               <Col xs={24} md={12}>
-                <Form.Item label={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>Model</Text>} style={{marginBottom: 16}}>
+                <Form.Item label={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>{t('selectModel')}</Text>} style={{marginBottom: 16}}>
                   <Select
                     id="llm-model"
                     value={selectedModelId}
@@ -164,7 +166,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
                     size="large"
                     style={{ width: '100%' }}
                     aria-label="LLM Model"
-                    placeholder="Select a model"
+                    placeholder={t('selectModel')}
                   >
                     {currentProviderDetails?.models.map(model => (
                       <Option key={model.model_id} value={model.model_id}>
@@ -179,7 +181,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
 
           {currentModelDetails && (
             <Card 
-              title={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>{currentModelDetails.display_name} Capabilities</Text>} 
+              title={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>{currentModelDetails.display_name} {t('capabilities')}</Text>} 
               variant="filled" 
               size="small" 
               style={{ 
@@ -190,27 +192,27 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
               }}
             >
               <Descriptions bordered column={1} size="small" styles={{label: {fontWeight: 500, color: 'var(--theme-text)'}}}>
-                <Descriptions.Item label="Supports Images">
+                <Descriptions.Item label={t('supportsImages')}>
                   {currentModelDetails.capabilities.supports_images ? 
-                    <Text style={{color: 'var(--theme-success, #52c41a)'}}>Yes</Text> : 
-                    <Text style={{color: 'var(--theme-error, #ff4d4f)'}}>No</Text>
+                    <Text style={{color: 'var(--theme-success, #52c41a)'}}>{t('yes')}</Text> : 
+                    <Text style={{color: 'var(--theme-error, #ff4d4f)'}}>{t('no')}</Text>
                   }
                 </Descriptions.Item>
                 {currentModelDetails.capabilities.max_input_tokens && 
-                  <Descriptions.Item label="Max Input Tokens">
+                  <Descriptions.Item label={t('maxInputTokens')}>
                     <Text style={{color: 'var(--theme-text)'}}>{currentModelDetails.capabilities.max_input_tokens.toLocaleString()}</Text>
                   </Descriptions.Item>
                 }
                 {currentModelDetails.capabilities.notes && 
-                  <Descriptions.Item label="Note">
+                  <Descriptions.Item label={t('note')}>
                     <Text style={{color: 'var(--theme-textSecondary)'}}>{currentModelDetails.capabilities.notes}</Text>
                   </Descriptions.Item>
                 }
               </Descriptions>
               {hasImageInput && !currentModelDetails.capabilities.supports_images && (
                 <Alert
-                  message="Warning"
-                  description={<Text style={{color: 'var(--theme-text)'}}>You have added images, but '<strong>{currentModelDetails.display_name}</strong>' does not support image input. Images may be ignored or cause errors.</Text>}
+                  message={t('warning')}
+                  description={<Text style={{color: 'var(--theme-text)'}}>{t('imageWarning', { modelName: currentModelDetails.display_name })}</Text>}
                   type="warning"
                   showIcon
                   style={{ 
