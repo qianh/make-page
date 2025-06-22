@@ -8,7 +8,7 @@ import FusionDegreeSelector from './components/FusionDegreeSelector';
 import './index.css'; // Global base styles
 
 import {
-  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Affix, Spin, message, Modal, Badge
+  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Spin, message, Modal, Badge
 } from 'antd';
 import {
   PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined
@@ -202,7 +202,7 @@ function App() {
           </Col>
         </Row>
       </Header>
-      <Content style={{ padding: '24px 48px', marginTop: 88 }}> {/* Adjust marginTop for fixed header height */}
+      <Content style={{ padding: '24px 48px', marginTop: 88, minHeight: 'calc(100vh - 88px)' }}> {/* Adjust marginTop for fixed header height */}
         <Space direction="vertical" size="large" style={{width: '100%'}}>
           <Row gutter={[32, 32]}> {/* Increased gutter for more spacing */}
             <Col xs={24} lg={8} xl={7}>
@@ -232,25 +232,45 @@ function App() {
             <Col xs={24} lg={16} xl={17}>
               <Card 
                 variant="filled"
-                style={{ borderRadius: 16, boxShadow: '0 12px 28px rgba(0,0,0,0.06)', minHeight: '600px' }}
+                style={{ borderRadius: 16, boxShadow: '0 12px 28px rgba(0,0,0,0.06)', minHeight: 'calc(100vh - 180px)' }}
                 styles={{body: {padding: 0}}} // Control padding internally
               >
                 <div style={{padding: 24, borderBottom: '1px solid rgba(0,0,0,0.06)'}}>
-                    <Row justify="space-between" align="middle" style={{height: 32}}>
+                    <Row justify="space-between" align="middle" style={{height: 48}}>
                         <Col style={{display: 'flex', alignItems: 'center', height: '100%'}}>
-                            <Title level={4} style={{
-                                margin: 0, 
-                                fontWeight: 600,
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                fontSize: '20px',
-                                lineHeight: '32px',
-                                letterSpacing: '0.5px',
-                                height: '32px',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}>Your Content Canvas</Title>
+                            <Space size="large" style={{height: '48px', alignItems: 'center', display: 'flex'}}>
+                                <Title level={4} style={{
+                                    margin: 0, 
+                                    fontWeight: 600,
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    fontSize: '20px',
+                                    lineHeight: '32px',
+                                    letterSpacing: '0.5px',
+                                    height: '32px',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}>Your Content Canvas</Title>
+                                <Button
+                                    type="primary"
+                                    size="large"
+                                    icon={<ExperimentOutlined />}
+                                    onClick={handleGenerate}
+                                    loading={isLoading}
+                                    disabled={!isLlmSelectionValid || blocks.length === 0}
+                                    style={{ 
+                                        minWidth: 180, 
+                                        height: 40,
+                                        borderRadius: 12, 
+                                        boxShadow: '0 4px 12px rgba(0,122,255,0.25)',
+                                        fontWeight: 500,
+                                        fontSize: 14
+                                    }}
+                                >
+                                    {isLoading ? 'Generating...' : 'Weave My Article!'}
+                                </Button>
+                            </Space>
                         </Col>
                         <Col style={{display: 'flex', alignItems: 'center', height: '100%'}}>
                             <Space style={{height: '32px', alignItems: 'center', display: 'flex'}}>
@@ -268,7 +288,7 @@ function App() {
                         </Col>
                     </Row>
                 </div>
-                <div style={{padding: '0 24px', height: 'calc(100vh - 300px)' }}>
+                <div style={{padding: '0 24px', minHeight: 'calc(100vh - 280px)', overflow: 'auto' }}>
                   {generatedArticle && generatedArticle.status === "success" ? (
                     <EditableOutput 
                       generatedArticle={generatedArticle} 
@@ -284,7 +304,7 @@ function App() {
                   ) : (
                     <Empty
                       image={<BulbOutlined style={{ fontSize: 72, color: '#007aff' }} />}
-                      styles={{image: { height: 100, marginBottom: 24}}}
+                      styles={{image: { height: 100, marginBottom: 24, marginTop: 60}}}
                       description={
                         <Space direction="vertical" align="center">
                           <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>Ready to Generate</Title>
@@ -304,29 +324,6 @@ function App() {
           </Row>
         </Space>
       </Content>
-      <Affix offsetBottom={32} style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button
-            type="primary"
-            size="large"
-            icon={<ExperimentOutlined />}
-            onClick={handleGenerate}
-            loading={isLoading}
-            disabled={!isLlmSelectionValid || blocks.length === 0}
-            style={{ 
-              minWidth: 220, 
-              height: 50,
-              borderRadius: 12, 
-              boxShadow: '0 6px 16px rgba(0,122,255,0.3)', /* Apple blue shadow */
-              fontWeight: 500,
-              fontSize: 16
-            }}
-          >
-            {isLoading ? 'Generating...' : 'Weave My Article!'}
-          </Button>
-      </Affix>
-      <Footer style={{ textAlign: 'center', background: 'transparent', paddingTop: 64, paddingBottom: 32 }}>
-        <Text style={{color: 'rgba(0,0,0,0.45)'}}>AI Content Weaver ©2025</Text>
-      </Footer>
       
       <Modal
         title="Import from Obsidian Vault"

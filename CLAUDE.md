@@ -58,11 +58,11 @@ The repository includes scripts to manage starting and stopping both services si
 
 #### Backend
 
-The backend uses `uv` for environment and package management.
+The backend uses `uv` for ultra-fast dependency management and virtual environments.
 
--   **Run the backend server (from `backend/` directory)**:
+-   **Set up and run backend server (from `backend/` directory)**:
     ```bash
-    # Set up virtual env and install dependencies (if not done)
+    # Set up virtual env and install dependencies (first time)
     uv venv
     uv pip sync
 
@@ -70,13 +70,18 @@ The backend uses `uv` for environment and package management.
     uv run uvicorn main:app --reload --port 8000
     ```
 
+-   **Install new dependencies**:
+    ```bash
+    uv add package_name
+    ```
+
 #### Frontend
 
-The frontend uses `npm` for package management.
+The frontend uses `npm` for package management and Vite for development.
 
 -   **Run the frontend dev server (from `frontend/` directory)**:
     ```bash
-    # Install dependencies (if not done)
+    # Install dependencies (first time)
     npm install
 
     # Run the server
@@ -91,6 +96,11 @@ The frontend uses `npm` for package management.
 -   **Build for production**:
     ```bash
     npm run build
+    ```
+
+-   **Preview production build**:
+    ```bash
+    npm run preview
     ```
 
 ## Project-Specific Patterns
@@ -109,13 +119,46 @@ Content blocks use discriminated unions in Pydantic schemas:
 - `CodeContentBlock`: Code with language specification  
 - `ImageContentBlock`: Image URL with optional description
 
-### Multi-language Support
+### Advanced Content Features
 
-The application supports multiple languages and writing styles. Language/style configurations are defined in the frontend and passed to LLM providers through the generation API.
+The application supports sophisticated content processing:
+- **Multi-language Support**: 10 languages supported (English, Chinese, Spanish, French, German, Japanese, Korean, Portuguese, Russian, Arabic)
+- **Writing Styles**: 8 styles available (formal, casual, academic, conversational, professional, creative, technical, journalistic)
+- **Content Fusion**: Three levels (low, medium, high) controlling how tightly content blocks are integrated
+- **SVG-Enhanced Output**: Generated content can include SVG graphics and advanced HTML styling
+- **Word Count Control**: Preset ranges (short, medium, long) and custom word count specifications
+
+### Modal-Based Content Management
+
+The UI uses a modal-based system for managing different content types:
+- Each content type (text, code, image) has its own dedicated modal
+- Badge counters show the number of blocks for each type
+- Content blocks are managed with UUID-based identification for reliable state tracking
+
+## Architecture Patterns
+
+### Service Management
+The application uses sophisticated bash scripts (`start_services.sh`/`stop_services.sh`) with:
+- Process monitoring and graceful shutdown handling
+- Port availability checking before starting services
+- PID file management for reliable service control
+- Comprehensive error handling and logging
+
+### Image Processing Pipeline
+- Async HTTP client for fetching remote images
+- PIL-based processing with format normalization and transparency handling
+- Local storage in `pic/` directory with timestamp-based organization
+- Comprehensive error handling for invalid URLs or unsupported formats
+
+### State Architecture
+- Frontend uses React hooks for state management without external libraries
+- UUID-based content block identification ensures reliable state tracking
+- Modal-based UI architecture for different content types
+- Real-time validation and user feedback throughout the UI
 
 ## Development Notes
 
 - **No Testing Framework**: Currently no formal testing setup. Consider adding Jest/Vitest for frontend and pytest for backend.
-- **State Management**: Frontend uses React hooks without external state management libraries.
-- **Modern Tooling**: Uses `uv` for Python dependency management and Vite for frontend builds.
-- **Obsidian Integration**: Special support for importing Obsidian vault files as content blocks.
+- **Modern Tooling**: Uses `uv` for ultra-fast Python dependency management and Vite for frontend builds.
+- **Obsidian Integration**: Native support for importing Obsidian vault files with recursive directory traversal and UTF-8 encoding handling.
+- **Export Capabilities**: Supports PDF and image export via html2canvas and jsPDF libraries.
