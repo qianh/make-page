@@ -870,7 +870,7 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
   }
 }
 
-/* 深色主题按钮增强 */
+/* 深色主题组件增强 */
 [data-theme="deepSpace"] .ant-btn,
 [data-theme="dark"] .ant-btn {
   color: var(--theme-text) !important;
@@ -882,6 +882,111 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
   color: var(--theme-text) !important;
   border-color: var(--theme-borderHover) !important;
   background: var(--theme-surfaceHover) !important;
+}
+
+/* 深色主题表单和描述组件 */
+[data-theme="deepSpace"] .ant-descriptions,
+[data-theme="dark"] .ant-descriptions {
+  color: var(--theme-text) !important;
+}
+
+[data-theme="deepSpace"] .ant-descriptions-item-label,
+[data-theme="dark"] .ant-descriptions-item-label {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+}
+
+[data-theme="deepSpace"] .ant-descriptions-item-content,
+[data-theme="dark"] .ant-descriptions-item-content {
+  color: var(--theme-textSecondary) !important;
+  background: var(--theme-surface) !important;
+}
+
+[data-theme="deepSpace"] .ant-descriptions-bordered .ant-descriptions-item,
+[data-theme="dark"] .ant-descriptions-bordered .ant-descriptions-item {
+  border-color: var(--theme-border) !important;
+}
+
+/* 深色主题表单标签 */
+[data-theme="deepSpace"] .ant-form-item-label label,
+[data-theme="dark"] .ant-form-item-label label {
+  color: var(--theme-text) !important;
+  font-weight: 500;
+}
+
+[data-theme="deepSpace"] .ant-form-item-label label::after,
+[data-theme="dark"] .ant-form-item-label label::after {
+  color: var(--theme-text) !important;
+}
+
+/* 深色主题卡片内容 */
+[data-theme="deepSpace"] .ant-card .ant-card-head-title,
+[data-theme="dark"] .ant-card .ant-card-head-title {
+  color: var(--theme-text) !important;
+}
+
+[data-theme="deepSpace"] .ant-card-body,
+[data-theme="dark"] .ant-card-body {
+  color: var(--theme-text) !important;
+}
+
+/* 深色主题输入数字组件 */
+[data-theme="deepSpace"] .ant-input-number,
+[data-theme="dark"] .ant-input-number {
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text) !important;
+}
+
+[data-theme="deepSpace"] .ant-input-number:hover,
+[data-theme="dark"] .ant-input-number:hover {
+  border-color: var(--theme-borderHover) !important;
+}
+
+[data-theme="deepSpace"] .ant-input-number:focus,
+[data-theme="deepSpace"] .ant-input-number-focused,
+[data-theme="dark"] .ant-input-number:focus,
+[data-theme="dark"] .ant-input-number-focused {
+  border-color: var(--theme-primary) !important;
+  box-shadow: 0 0 0 2px rgba(var(--theme-primary), 0.2) !important;
+}
+
+[data-theme="deepSpace"] .ant-input-number-input,
+[data-theme="dark"] .ant-input-number-input {
+  color: var(--theme-text) !important;
+}
+
+[data-theme="deepSpace"] .ant-input-number-input::placeholder,
+[data-theme="dark"] .ant-input-number-input::placeholder {
+  color: var(--theme-textSecondary) !important;
+}
+
+/* 深色主题空状态和警告 */
+[data-theme="deepSpace"] .ant-alert,
+[data-theme="dark"] .ant-alert {
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-alert-message,
+[data-theme="deepSpace"] .ant-alert-description,
+[data-theme="dark"] .ant-alert-message,
+[data-theme="dark"] .ant-alert-description {
+  color: var(--theme-text) !important;
+}
+
+/* 深色主题工具提示 */
+[data-theme="deepSpace"] .ant-tooltip-inner,
+[data-theme="dark"] .ant-tooltip-inner {
+  background: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+[data-theme="deepSpace"] .ant-tooltip-arrow::before,
+[data-theme="dark"] .ant-tooltip-arrow::before {
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
 }
 
 .theme-surface {

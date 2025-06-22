@@ -90,8 +90,8 @@ function LanguageSelector({
       key: '1',
       label: (
         <Space>
-          <GlobalOutlined style={{ color: '#007aff' }} />
-          <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+          <GlobalOutlined style={{ color: 'var(--theme-primary)' }} />
+          <Title level={4} style={{ margin: 0, fontWeight: 600, color: 'var(--theme-text)' }}>
             Output Preferences
           </Title>
         </Space>
@@ -99,7 +99,7 @@ function LanguageSelector({
       children: (
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <div>
-            <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+            <Typography.Text strong style={{ marginBottom: 8, display: 'block', color: 'var(--theme-text)' }}>
               Output Language
             </Typography.Text>
             <Select
@@ -122,7 +122,7 @@ function LanguageSelector({
           </div>
 
           <div>
-            <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+            <Typography.Text strong style={{ marginBottom: 8, display: 'block', color: 'var(--theme-text)' }}>
               Writing Style
             </Typography.Text>
             <Select
@@ -145,7 +145,7 @@ function LanguageSelector({
           </div>
 
           <div>
-            <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+            <Typography.Text strong style={{ marginBottom: 8, display: 'block', color: 'var(--theme-text)' }}>
               HTML Display Style
             </Typography.Text>
             <Select
@@ -165,12 +165,12 @@ function LanguageSelector({
               }))}
               optionRender={(option) => (
                 <div style={{ padding: '4px 0' }}>
-                  <div style={{ fontWeight: 500, lineHeight: '1.2' }}>
+                  <div style={{ fontWeight: 500, lineHeight: '1.2', color: 'var(--theme-text)' }}>
                     {option.label}
                   </div>
                   <div style={{ 
                     fontSize: '12px', 
-                    color: '#666', 
+                    color: 'var(--theme-textSecondary)', 
                     marginTop: '2px',
                     lineHeight: '1.3',
                     whiteSpace: 'normal'
@@ -183,7 +183,7 @@ function LanguageSelector({
           </div>
 
           <div>
-            <Typography.Text strong style={{ marginBottom: 8, display: 'block' }}>
+            <Typography.Text strong style={{ marginBottom: 8, display: 'block', color: 'var(--theme-text)' }}>
               Word Count Range
             </Typography.Text>
             <Space direction="vertical" style={{ width: '100%' }}>

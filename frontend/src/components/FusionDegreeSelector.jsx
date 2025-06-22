@@ -35,7 +35,7 @@ const FusionDegreeSelector = ({
     {
       key: '1',
       label: (
-        <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+        <Title level={4} style={{ margin: 0, fontWeight: 600, color: 'var(--theme-text)' }}>
           内容融合设置
         </Title>
       ),
@@ -47,9 +47,9 @@ const FusionDegreeSelector = ({
                 <Form.Item 
                   label={
                     <Space>
-                      <Text style={{fontWeight: 500}}>融合程度</Text>
+                      <Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>融合程度</Text>
                       <Tooltip title="融合程度决定了AI如何整合你的内容块。高融合度会深度理解和重构内容，低融合度保持原有结构。">
-                        <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                        <InfoCircleOutlined style={{ color: 'var(--theme-primary)' }} />
                       </Tooltip>
                     </Space>
                   } 
@@ -76,13 +76,13 @@ const FusionDegreeSelector = ({
                             fontWeight: 'bold', 
                             fontSize: '14px',
                             marginBottom: '4px',
-                            color: '#262626'
+                            color: 'var(--theme-text)'
                           }}>
                             {option.label}
                           </div>
                           <div style={{ 
                             fontSize: '12px', 
-                            color: '#8c8c8c',
+                            color: 'var(--theme-textSecondary)',
                             lineHeight: '1.4',
                             wordWrap: 'break-word',
                             whiteSpace: 'normal'
@@ -99,9 +99,9 @@ const FusionDegreeSelector = ({
                 <Form.Item 
                   label={
                     <Space>
-                      <Text style={{fontWeight: 500}}>输出格式</Text>
+                      <Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>输出格式</Text>
                       <Tooltip title="启用SVG输出将生成带有自定义图表和插图的丰富视觉内容">
-                        <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                        <InfoCircleOutlined style={{ color: 'var(--theme-primary)' }} />
                       </Tooltip>
                     </Space>
                   } 
@@ -125,17 +125,22 @@ const FusionDegreeSelector = ({
               <Card 
                 variant="filled" 
                 size="small" 
-                style={{ marginTop: 16, background: 'rgba(24, 144, 255, 0.05)', borderRadius: 12, border: '1px solid rgba(24, 144, 255, 0.1)' }}
+                style={{ 
+                  marginTop: 16, 
+                  background: 'var(--theme-surface)', 
+                  borderRadius: 12, 
+                  border: '1px solid var(--theme-border)' 
+                }}
               >
                 <Space direction="vertical" size={4}>
-                  <Text style={{fontWeight: 500, color: '#1890ff'}}>
+                  <Text style={{fontWeight: 500, color: 'var(--theme-primary)'}}>
                     当前设置：{selectedOption.label}
                   </Text>
-                  <Text type="secondary" style={{ fontSize: '13px' }}>
+                  <Text style={{ fontSize: '13px', color: 'var(--theme-textSecondary)' }}>
                     {selectedOption.description}
                   </Text>
                   {enableSvgOutput && (
-                    <Text type="secondary" style={{ fontSize: '13px', color: '#52c41a' }}>
+                    <Text style={{ fontSize: '13px', color: 'var(--theme-success)' }}>
                       + 将生成包含自定义SVG插图的丰富视觉内容
                     </Text>
                   )}

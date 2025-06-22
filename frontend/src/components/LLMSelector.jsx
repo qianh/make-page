@@ -127,7 +127,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
     {
       key: '1',
       label: (
-        <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+        <Title level={4} style={{ margin: 0, fontWeight: 600, color: 'var(--theme-text)' }}>
           Configure AI Model
         </Title>
       ),
@@ -136,7 +136,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
           <Form layout="vertical">
             <Row gutter={24}>
               <Col xs={24} md={12}>
-                <Form.Item label={<Text style={{fontWeight: 500}}>Provider</Text>} style={{marginBottom: 16}}>
+                <Form.Item label={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>Provider</Text>} style={{marginBottom: 16}}>
                   <Select
                     id="llm-provider"
                     value={selectedProviderId}
@@ -155,7 +155,7 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
                 </Form.Item>
               </Col>
               <Col xs={24} md={12}>
-                <Form.Item label={<Text style={{fontWeight: 500}}>Model</Text>} style={{marginBottom: 16}}>
+                <Form.Item label={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>Model</Text>} style={{marginBottom: 16}}>
                   <Select
                     id="llm-model"
                     value={selectedModelId}
@@ -179,36 +179,46 @@ const LLMSelector = ({ selectedLlm, onLlmChange, currentBlocks }) => {
 
           {currentModelDetails && (
             <Card 
-              title={<Text style={{fontWeight: 500}}>{currentModelDetails.display_name} Capabilities</Text>} 
+              title={<Text style={{fontWeight: 500, color: 'var(--theme-text)'}}>{currentModelDetails.display_name} Capabilities</Text>} 
               variant="filled" 
               size="small" 
-              style={{ marginTop: 20, background: 'rgba(0,0,0,0.02)', borderRadius: 12 }}
+              style={{ 
+                marginTop: 20, 
+                background: 'var(--theme-surface)', 
+                borderRadius: 12,
+                border: '1px solid var(--theme-border)'
+              }}
             >
-              <Descriptions bordered column={1} size="small" styles={{label: {fontWeight: 500}}}>
+              <Descriptions bordered column={1} size="small" styles={{label: {fontWeight: 500, color: 'var(--theme-text)'}}}>
                 <Descriptions.Item label="Supports Images">
                   {currentModelDetails.capabilities.supports_images ? 
-                    <Text style={{color: '#52c41a'}}>Yes</Text> : 
-                    <Text style={{color: '#ff4d4f'}}>No</Text>
+                    <Text style={{color: 'var(--theme-success, #52c41a)'}}>Yes</Text> : 
+                    <Text style={{color: 'var(--theme-error, #ff4d4f)'}}>No</Text>
                   }
                 </Descriptions.Item>
                 {currentModelDetails.capabilities.max_input_tokens && 
                   <Descriptions.Item label="Max Input Tokens">
-                    <Text>{currentModelDetails.capabilities.max_input_tokens.toLocaleString()}</Text>
+                    <Text style={{color: 'var(--theme-text)'}}>{currentModelDetails.capabilities.max_input_tokens.toLocaleString()}</Text>
                   </Descriptions.Item>
                 }
                 {currentModelDetails.capabilities.notes && 
                   <Descriptions.Item label="Note">
-                    <Text type="secondary">{currentModelDetails.capabilities.notes}</Text>
+                    <Text style={{color: 'var(--theme-textSecondary)'}}>{currentModelDetails.capabilities.notes}</Text>
                   </Descriptions.Item>
                 }
               </Descriptions>
               {hasImageInput && !currentModelDetails.capabilities.supports_images && (
                 <Alert
                   message="Warning"
-                  description={<Text>You have added images, but '<strong>{currentModelDetails.display_name}</strong>' does not support image input. Images may be ignored or cause errors.</Text>}
+                  description={<Text style={{color: 'var(--theme-text)'}}>You have added images, but '<strong>{currentModelDetails.display_name}</strong>' does not support image input. Images may be ignored or cause errors.</Text>}
                   type="warning"
                   showIcon
-                  style={{ marginTop: 16, borderRadius: 8 }}
+                  style={{ 
+                    marginTop: 16, 
+                    borderRadius: 8,
+                    background: 'var(--theme-surface)',
+                    border: '1px solid var(--theme-warning)'
+                  }}
                 />
               )}
             </Card>
