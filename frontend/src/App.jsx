@@ -357,8 +357,59 @@ function App() {
                                 justifyContent: 'flex-end', 
                                 alignItems: 'center', 
                                 gap: '12px', 
-                                flexWrap: 'wrap'
+                                flexWrap: 'nowrap'
                             }}>
+                                {/* 生成按钮 */}
+                                <Button
+                                    type="primary"
+                                    size="large"
+                                    icon={<ExperimentOutlined />}
+                                    onClick={handleGenerate}
+                                    loading={isLoading}
+                                    disabled={!isLlmSelectionValid || blocks.length === 0}
+                                    style={{ 
+                                        minWidth: windowWidth < 768 ? '120px' : '140px',
+                                        width: 'auto',
+                                        maxWidth: '160px',
+                                        height: '36px',
+                                        borderRadius: '18px', 
+                                        background: 'linear-gradient(135deg, var(--theme-primary, #007aff) 0%, var(--theme-accent, #34c759) 100%)',
+                                        border: 'none',
+                                        color: '#ffffff',
+                                        boxShadow: '0 4px 12px rgba(var(--theme-primary), 0.3)',
+                                        fontWeight: 600,
+                                        fontSize: '13px',
+                                        letterSpacing: '0.3px',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        transition: 'all 0.3s ease',
+                                        flexShrink: 0
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.transform = 'translateY(-1px)';
+                                        e.target.style.boxShadow = '0 6px 16px rgba(var(--theme-primary), 0.4)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.transform = 'translateY(0)';
+                                        e.target.style.boxShadow = '0 4px 12px rgba(var(--theme-primary), 0.3)';
+                                    }}
+                                >
+                                    <span style={{position: 'relative', zIndex: 2}}>
+                                        {isLoading ? '🧠 Weaving...' : '✨ Weave Article!'}
+                                    </span>
+                                    {/* 按钮光效 */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: '-100%',
+                                        width: '100%',
+                                        height: '100%',
+                                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                                        animation: isLoading ? 'none' : 'shimmer 2s infinite',
+                                        zIndex: 1
+                                    }} />
+                                </Button>
+                                
                                 {/* 内容块按钮组 */}
                                 <div style={{
                                     display: 'flex',
@@ -370,7 +421,8 @@ function App() {
                                     border: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
                                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                                     backdropFilter: 'blur(10px)',
-                                    minWidth: 'fit-content'
+                                    minWidth: 'fit-content',
+                                    flexShrink: 0
                                 }}>
                                     <Badge count={blockCounts.text} size="small" offset={[-3, -3]} style={{zIndex: 10}}>
                                         <Button 
@@ -451,56 +503,6 @@ function App() {
                                         Obsidian
                                     </Button>
                                 </div>
-                                
-                                {/* 生成按钮 */}
-                                <Button
-                                    type="primary"
-                                    size="large"
-                                    icon={<ExperimentOutlined />}
-                                    onClick={handleGenerate}
-                                    loading={isLoading}
-                                    disabled={!isLlmSelectionValid || blocks.length === 0}
-                                    style={{ 
-                                        minWidth: windowWidth < 768 ? '160px' : '180px',
-                                        width: windowWidth < 768 ? '100%' : 'auto',
-                                        maxWidth: '200px',
-                                        height: '40px',
-                                        borderRadius: '20px', 
-                                        background: 'linear-gradient(135deg, var(--theme-primary, #007aff) 0%, var(--theme-accent, #34c759) 100%)',
-                                        border: 'none',
-                                        color: '#ffffff',
-                                        boxShadow: '0 4px 12px rgba(var(--theme-primary), 0.3)',
-                                        fontWeight: 600,
-                                        fontSize: '14px',
-                                        letterSpacing: '0.3px',
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                        transition: 'all 0.3s ease'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.target.style.transform = 'translateY(-1px)';
-                                        e.target.style.boxShadow = '0 6px 16px rgba(var(--theme-primary), 0.4)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.target.style.transform = 'translateY(0)';
-                                        e.target.style.boxShadow = '0 4px 12px rgba(var(--theme-primary), 0.3)';
-                                    }}
-                                >
-                                    <span style={{position: 'relative', zIndex: 2}}>
-                                        {isLoading ? '🧠 Weaving...' : '✨ Weave Article!'}
-                                    </span>
-                                    {/* 按钮光效 */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: '-100%',
-                                        width: '100%',
-                                        height: '100%',
-                                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                                        animation: isLoading ? 'none' : 'shimmer 2s infinite',
-                                        zIndex: 1
-                                    }} />
-                                </Button>
                             </div>
                         </Col>
                     </Row>
