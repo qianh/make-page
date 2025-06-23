@@ -6,7 +6,8 @@ from pathlib import Path
 from schemas import (
     GenerationRequest, GeneratedContent, UserInput, LLMSelection, # For /generate endpoint
     AvailableLLMsResponse, LLMProviderInfo, LLMModelInfo, ModelCapability, # For /llms endpoint
-    ObsidianVaultRequest, ObsidianVaultResponse, ObsidianFile # For /obsidian endpoint
+    ObsidianVaultRequest, ObsidianVaultResponse, ObsidianFile, # For /obsidian endpoint
+    ContentAnalysisRequest, ContentAnalysisResponse, KeywordTag, MindMapNode, ContentSummary, ContentReference # For /content-analysis endpoint
 )
 from typing import List # Ensure List is imported if not already
 from typing import List
@@ -251,6 +252,386 @@ async def generate_content_endpoint(request: GenerationRequest):
         print(f"Error during content generation with {request.llm_selection.provider}: {e}")
         # Consider more specific error handling/logging here
         raise HTTPException(status_code=500, detail=f"Error generating content with {request.llm_selection.provider}.")
+
+
+@app.post("/api/v1/content-analysis", response_model=ContentAnalysisResponse)
+async def analyze_content_endpoint(request: ContentAnalysisRequest):
+    """
+    分析用户输入的内容，提取关键词、生成思维导图、总结核心概要
+    """
+    print(f"Received content analysis request for types: {request.analysis_types}")
+    
+    # 构建内容字符串用于分析
+    content_blocks = []
+    for i, block in enumerate(request.user_input.blocks):
+        if block.type == 'text':
+            content_blocks.append(f"文本块 {i+1}: {block.content}")
+        elif block.type == 'code':
+            content_blocks.append(f"代码块 {i+1} ({block.language}): {block.code}")
+        elif block.type == 'image':
+            content_blocks.append(f"图片块 {i+1}: {block.alt_text or block.caption or '图片内容'}")
+    
+    combined_content = "\n\n".join(content_blocks)
+    
+    if not combined_content.strip():
+        raise HTTPException(status_code=400, detail="No content to analyze")
+    
+    try:
+        # 获取LLM提供者（默认使用Google Gemini）
+        llm_provider = get_llm_provider("google")
+        
+        response_data = ContentAnalysisResponse(analysis_language=request.language)
+        
+        # 关键词提取
+        if "keywords" in request.analysis_types:
+            keywords_prompt = f"""
+请分析以下内容，提取10-15个最重要的关键词，并按重要性排序。对每个关键词给出0-1的重要性评分（1为最重要），并将其分类（如：核心概念、技术方法、工具平台、设计理念、实现细节等）。
+
+分析内容：
+{combined_content}
+
+请严格按照以下JSON格式返回结果，不要添加任何其他文字：
+[
+  {{"keyword": "关键词1", "importance": 0.9, "category": "核心概念"}},
+  {{"keyword": "关键词2", "importance": 0.8, "category": "技术方法"}},
+  ...
+]
+            """
+            
+            try:
+                keywords_result = await llm_provider.generate_simple_text(
+                    prompt=keywords_prompt,
+                    model_name="gemini-2.5-flash"
+                )
+                
+                # 尝试解析JSON响应
+                import json
+                import re
+                
+                # 清理响应，提取JSON部分
+                json_match = re.search(r'\[(.*?)\]', keywords_result, re.DOTALL)
+                if json_match:
+                    json_str = '[' + json_match.group(1) + ']'
+                    try:
+                        keywords_data = json.loads(json_str)
+                        keywords_list = []
+                        for item in keywords_data:
+                            if isinstance(item, dict) and all(k in item for k in ['keyword', 'importance', 'category']):
+                                keywords_list.append(KeywordTag(
+                                    keyword=item['keyword'],
+                                    importance=min(max(float(item['importance']), 0.0), 1.0),
+                                    category=item['category']
+                                ))
+                        response_data.keywords = keywords_list[:15]  # 限制最多15个关键词
+                    except (json.JSONDecodeError, ValueError, KeyError) as e:
+                        print(f"Failed to parse keywords JSON: {e}")
+                        # 如果解析失败，使用文本分析的备用方案
+                        response_data.keywords = await _extract_keywords_fallback(keywords_result, combined_content)
+                else:
+                    response_data.keywords = await _extract_keywords_fallback(keywords_result, combined_content)
+                    
+            except Exception as e:
+                print(f"Error extracting keywords: {e}")
+                response_data.keywords = []
+        
+        # 思维导图生成
+        if "mindmap" in request.analysis_types:
+            mindmap_prompt = f"""
+请为以下内容创建一个思维导图结构，包含主要概念和子概念的层级关系。要求：
+1. 识别一个核心主题作为根节点
+2. 创建2-4个主要分支（二级节点）
+3. 每个主要分支下可以有1-3个子节点（三级节点）
+4. 保持层级关系清晰
+
+分析内容：
+{combined_content}
+
+请严格按照以下JSON格式返回思维导图结构，不要添加任何其他文字：
+[
+  {{"id": "root", "text": "根节点主题", "level": 1, "parent_id": null, "children": ["node1", "node2", "node3"]}},
+  {{"id": "node1", "text": "主要概念1", "level": 2, "parent_id": "root", "children": ["node1_1", "node1_2"]}},
+  {{"id": "node1_1", "text": "子概念1-1", "level": 3, "parent_id": "node1", "children": []}},
+  ...
+]
+            """
+            
+            try:
+                print(f"Sending mindmap prompt for content: {combined_content[:200]}...")
+                mindmap_result = await llm_provider.generate_simple_text(
+                    prompt=mindmap_prompt,
+                    model_name="gemini-2.5-flash"
+                )
+                print(f"Received mindmap result length: {len(mindmap_result)}")
+                print(f"First 500 chars of mindmap result: {mindmap_result[:500]}...")
+                
+                # 解析思维导图JSON响应
+                import json
+                import re
+                
+                print(f"Raw mindmap result: {mindmap_result}")
+                
+                # 尝试多种JSON提取方法
+                json_str = None
+                
+                # 方法1: 提取完整的JSON数组 (贪婪匹配)
+                json_match = re.search(r'\[.*\]', mindmap_result, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(0)
+                else:
+                    # 方法2: 查找第一个[到最后一个]之间的内容
+                    start_idx = mindmap_result.find('[')
+                    end_idx = mindmap_result.rfind(']')
+                    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                        json_str = mindmap_result[start_idx:end_idx+1]
+                
+                if json_str:
+                    try:
+                        # 清理可能的问题字符
+                        json_str = json_str.strip()
+                        print(f"Extracted JSON string: {json_str}")
+                        
+                        mindmap_data = json.loads(json_str)
+                        mindmap_nodes = []
+                        
+                        for item in mindmap_data:
+                            if isinstance(item, dict) and all(k in item for k in ['id', 'text', 'level']):
+                                mindmap_nodes.append(MindMapNode(
+                                    id=item['id'],
+                                    text=item['text'],
+                                    level=int(item['level']),
+                                    parent_id=item.get('parent_id'),
+                                    children=item.get('children', [])
+                                ))
+                        
+                        if mindmap_nodes:
+                            response_data.mindmap = mindmap_nodes
+                            print(f"Successfully parsed {len(mindmap_nodes)} mindmap nodes")
+                            for node in mindmap_nodes:
+                                print(f"  Node: {node.id} - {node.text} (level {node.level})")
+                        else:
+                            print("No valid mindmap nodes found, using fallback")
+                            response_data.mindmap = await _generate_mindmap_fallback(mindmap_result, combined_content)
+                            
+                    except (json.JSONDecodeError, ValueError, KeyError) as e:
+                        print(f"Failed to parse mindmap JSON: {e}")
+                        print(f"JSON string that failed: {json_str}")
+                        response_data.mindmap = await _generate_mindmap_fallback(mindmap_result, combined_content)
+                else:
+                    print("No JSON array found in mindmap result")
+                    response_data.mindmap = await _generate_mindmap_fallback(mindmap_result, combined_content)
+                    
+            except Exception as e:
+                print(f"Error generating mindmap: {e}")
+                import traceback
+                print(f"Mindmap generation traceback: {traceback.format_exc()}")
+                response_data.mindmap = await _generate_mindmap_fallback("", combined_content)
+        
+        # 内容概要
+        if "summary" in request.analysis_types:
+            summary_prompt = f"""
+请为以下内容生成一个详细的概要总结。要求：
+1. 提取一个简洁明确的标题（10字以内）
+2. 生成核心摘要（150-200字）
+3. 列出3-5个最重要的关键要点
+4. 为每个要点标注来源内容的引用
+
+分析内容：
+{combined_content}
+
+请严格按照以下JSON格式返回，不要添加任何其他文字：
+{{
+  "title": "内容标题",
+  "summary": "核心摘要内容...",
+  "key_points": ["要点1", "要点2", "要点3"],
+  "references": [
+    {{"source_block_index": 0, "source_text": "引用的具体文本", "reference_type": "quote", "start_position": 0, "end_position": 50}}
+  ]
+}}
+            """
+            
+            try:
+                summary_result = await llm_provider.generate_simple_text(
+                    prompt=summary_prompt,
+                    model_name="gemini-2.5-flash"
+                )
+                
+                # 解析概要JSON响应
+                import json
+                import re
+                
+                json_match = re.search(r'\{.*\}', summary_result, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(0)
+                    try:
+                        summary_data = json.loads(json_str)
+                        
+                        # 处理引用数据
+                        references = []
+                        for ref in summary_data.get('references', []):
+                            if isinstance(ref, dict) and 'source_text' in ref:
+                                references.append(ContentReference(
+                                    source_block_index=ref.get('source_block_index', 0),
+                                    source_text=ref['source_text'],
+                                    reference_type=ref.get('reference_type', 'quote'),
+                                    start_position=ref.get('start_position'),
+                                    end_position=ref.get('end_position')
+                                ))
+                        
+                        response_data.summary = ContentSummary(
+                            title=summary_data.get('title', '内容概要'),
+                            summary=summary_data.get('summary', ''),
+                            key_points=summary_data.get('key_points', []),
+                            references=references
+                        )
+                        
+                    except (json.JSONDecodeError, ValueError, KeyError) as e:
+                        print(f"Failed to parse summary JSON: {e}")
+                        response_data.summary = await _generate_summary_fallback(summary_result, combined_content)
+                else:
+                    response_data.summary = await _generate_summary_fallback(summary_result, combined_content)
+                    
+            except Exception as e:
+                print(f"Error generating summary: {e}")
+                response_data.summary = None
+        
+        return response_data
+        
+    except Exception as e:
+        print(f"Error during content analysis: {e}")
+        raise HTTPException(status_code=500, detail=f"Error analyzing content: {str(e)}")
+
+
+async def _extract_keywords_fallback(llm_result: str, content: str) -> List[KeywordTag]:
+    """
+    备用关键词提取方案，当LLM JSON解析失败时使用
+    """
+    try:
+        # 简单的关键词提取逻辑
+        words = content.lower().split()
+        # 移除常见停用词
+        stop_words = {'的', '是', '在', '有', '和', '与', '或', '但', '而', '了', '以', '及', '为', '由', '对', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'}
+        
+        # 统计词频
+        word_freq = {}
+        for word in words:
+            if len(word) > 2 and word not in stop_words:
+                word_freq[word] = word_freq.get(word, 0) + 1
+        
+        # 取前10个高频词作为关键词
+        top_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:10]
+        
+        keywords = []
+        for i, (word, freq) in enumerate(top_words):
+            importance = max(0.3, 1.0 - (i * 0.1))  # 递减的重要性评分
+            category = "核心概念" if i < 3 else "相关术语"
+            keywords.append(KeywordTag(keyword=word, importance=importance, category=category))
+        
+        return keywords
+    except Exception:
+        return []
+
+
+async def _generate_mindmap_fallback(llm_result: str, content: str) -> List[MindMapNode]:
+    """
+    备用思维导图生成方案，当LLM JSON解析失败时使用
+    基于内容生成简化的思维导图
+    """
+    try:
+        print(f"Using fallback mindmap generation for content: {content[:100]}...")
+        
+        # 尝试从内容中提取关键信息生成动态思维导图
+        content_lower = content.lower()
+        
+        # 根据内容类型判断主题
+        if '代码' in content or 'code' in content_lower or 'function' in content_lower:
+            root_text = "代码分析"
+            nodes = [
+                MindMapNode(id="root", text=root_text, level=1, children=["structure", "logic", "optimization"]),
+                MindMapNode(id="structure", text="代码结构", level=2, parent_id="root", children=["modules"]),
+                MindMapNode(id="logic", text="逻辑实现", level=2, parent_id="root", children=["algorithm"]),
+                MindMapNode(id="optimization", text="优化建议", level=2, parent_id="root"),
+                MindMapNode(id="modules", text="模块分解", level=3, parent_id="structure"),
+                MindMapNode(id="algorithm", text="算法分析", level=3, parent_id="logic")
+            ]
+        elif '数据' in content or 'data' in content_lower or '分析' in content:
+            root_text = "数据分析"
+            nodes = [
+                MindMapNode(id="root", text=root_text, level=1, children=["source", "process", "result"]),
+                MindMapNode(id="source", text="数据来源", level=2, parent_id="root", children=["collection"]),
+                MindMapNode(id="process", text="处理方法", level=2, parent_id="root", children=["analysis"]),
+                MindMapNode(id="result", text="结果输出", level=2, parent_id="root"),
+                MindMapNode(id="collection", text="数据收集", level=3, parent_id="source"),
+                MindMapNode(id="analysis", text="分析算法", level=3, parent_id="process")
+            ]
+        elif '项目' in content or 'project' in content_lower or '开发' in content:
+            root_text = "项目分析"
+            nodes = [
+                MindMapNode(id="root", text=root_text, level=1, children=["requirements", "design", "implementation"]),
+                MindMapNode(id="requirements", text="需求分析", level=2, parent_id="root", children=["features"]),
+                MindMapNode(id="design", text="设计方案", level=2, parent_id="root", children=["architecture"]),
+                MindMapNode(id="implementation", text="实现计划", level=2, parent_id="root"),
+                MindMapNode(id="features", text="功能特性", level=3, parent_id="requirements"),
+                MindMapNode(id="architecture", text="架构设计", level=3, parent_id="design")
+            ]
+        else:
+            # 默认通用结构
+            # 尝试从内容中提取第一个有意义的词作为主题
+            words = content.split()[:10]  # 取前10个词
+            meaningful_words = [w for w in words if len(w) > 2 and w not in ['的', '是', '在', '了', '和']]
+            root_text = meaningful_words[0] if meaningful_words else "内容分析"
+            
+            nodes = [
+                MindMapNode(id="root", text=root_text, level=1, children=["overview", "details", "conclusion"]),
+                MindMapNode(id="overview", text="概述", level=2, parent_id="root", children=["background"]),
+                MindMapNode(id="details", text="详细内容", level=2, parent_id="root", children=["key_points"]),
+                MindMapNode(id="conclusion", text="结论", level=2, parent_id="root"),
+                MindMapNode(id="background", text="背景信息", level=3, parent_id="overview"),
+                MindMapNode(id="key_points", text="关键要点", level=3, parent_id="details")
+            ]
+        
+        print(f"Generated fallback mindmap with root: {root_text}")
+        return nodes
+        
+    except Exception as e:
+        print(f"Error in fallback mindmap generation: {e}")
+        # 最后的备用方案
+        return [
+            MindMapNode(id="root", text="内容分析", level=1, children=["concept", "method"]),
+            MindMapNode(id="concept", text="核心概念", level=2, parent_id="root"),
+            MindMapNode(id="method", text="实现方法", level=2, parent_id="root")
+        ]
+
+
+async def _generate_summary_fallback(llm_result: str, content: str) -> ContentSummary:
+    """
+    备用概要生成方案，当LLM JSON解析失败时使用
+    """
+    try:
+        # 简化的概要生成
+        title = "内容概要"
+        summary = content[:200] + "..." if len(content) > 200 else content
+        key_points = ["主要内容分析", "核心概念提取", "关键信息整理"]
+        references = [
+            ContentReference(
+                source_block_index=0,
+                source_text=content[:100] if content else "内容摘要",
+                reference_type="summary"
+            )
+        ]
+        
+        return ContentSummary(
+            title=title,
+            summary=summary,
+            key_points=key_points,
+            references=references
+        )
+    except Exception:
+        return ContentSummary(
+            title="分析错误",
+            summary="无法生成内容概要",
+            key_points=[],
+            references=[]
+        )
 
 
 # To run the app (from the 'backend' directory):
