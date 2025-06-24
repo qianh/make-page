@@ -649,7 +649,7 @@ function AppContent() {
                             {/* 内容为空时的提示 */}
                             {blocks.length === 0 && (
                               <Empty
-                                image={<BulbOutlined style={{ fontSize: 48, color: '#ccc' }} />}
+                                image={<BulbOutlined style={{ fontSize: 64, color: '#ccc' }} />}
                                 description={
                                   <Space direction="vertical" align="center">
                                     <Text type="secondary" style={{ fontSize: '16px' }}>
@@ -663,7 +663,13 @@ function AppContent() {
                                     </Text>
                                   </Space>
                                 }
-                                style={{ padding: '20px' }}
+                                style={{ 
+                                  padding: '40px 20px',
+                                  flex: 1,
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  justifyContent: 'center'
+                                }}
                               />
                             )}
 
