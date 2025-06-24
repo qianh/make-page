@@ -243,6 +243,133 @@ const ModernMindMap = ({ nodes, language }) => {
       levelGroups[node.level].push(node);
     });
 
+    // 自底向上布局算法 - 叶子节点固定间距，父节点居中对齐
+    const nodePositions = new Map();
+    const leafSpacing = 120; // 叶子节点间距
+    
+    // 第一步：找到最大层级，从叶子节点开始布局
+    const maxLevel = Math.max(...nodes.map(n => n.level));
+    
+    // 第二步：为每个父节点的子节点分别进行对称布局
+    const isNodeVisible = (node) => {
+      // 检查从根节点到该节点的路径上是否有被折叠的父节点
+      let currentNode = node;
+      while (currentNode.parent_id) {
+        const parent = nodes.find(n => n.id === currentNode.parent_id);
+        if (!parent) break;
+        if (collapsedNodes.has(parent.id)) {
+          return false; // 父节点被折叠，该节点不可见
+        }
+        currentNode = parent;
+      }
+      return true;
+    };
+    
+    // 找到所有可见的叶子节点，按父节点分组
+    const leafNodesByParent = {};
+    nodes.forEach(node => {
+      if (!isNodeVisible(node)) return;
+      
+      const hasVisibleChildren = nodes.some(child => 
+        child.parent_id === node.id && 
+        isNodeVisible(child) && 
+        !collapsedNodes.has(node.id)
+      );
+      
+      if (!hasVisibleChildren) {
+        const parentId = node.parent_id || 'root';
+        if (!leafNodesByParent[parentId]) {
+          leafNodesByParent[parentId] = [];
+        }
+        leafNodesByParent[parentId].push(node);
+      }
+    });
+    
+    // 简单方案：将所有叶子节点收集起来，按固定间距排列
+    const allLeafNodes = [];
+    Object.values(leafNodesByParent).forEach(siblings => {
+      allLeafNodes.push(...siblings);
+    });
+    
+    // 所有叶子节点垂直居中排列
+    allLeafNodes.forEach((node, index) => {
+      nodePositions.set(node.id, {
+        x: (node.level - 1) * 280,
+        y: index * leafSpacing - (allLeafNodes.length - 1) * leafSpacing / 2
+      });
+    });
+    
+    // 第三步：自底向上计算父节点位置（从倒数第二层开始）
+    
+    for (let level = maxLevel - 1; level >= 1; level--) {
+      const currentLevelNodes = nodes.filter(node => 
+        node.level === level && isNodeVisible(node)
+      );
+      
+      currentLevelNodes.forEach(parentNode => {
+        // 找到该父节点的所有可见子节点
+        const children = nodes.filter(child => 
+          child.parent_id === parentNode.id && 
+          isNodeVisible(child) && 
+          !collapsedNodes.has(parentNode.id)
+        );
+        
+        if (children.length > 0) {
+          // 只考虑已经有位置的子节点
+          const childPositions = children
+            .map(child => nodePositions.get(child.id))
+            .filter(pos => pos !== undefined);
+          
+          if (childPositions.length > 0) {
+            // 计算所有子节点的y坐标平均值（中垂线位置）
+            const avgY = childPositions.reduce((sum, pos) => sum + pos.y, 0) / childPositions.length;
+            
+            nodePositions.set(parentNode.id, {
+              x: (level - 1) * 280,
+              y: avgY
+            });
+          } else {
+            // 如果子节点还没有位置，使用默认位置
+            nodePositions.set(parentNode.id, {
+              x: (level - 1) * 280,
+              y: 0
+            });
+          }
+        } else {
+          // 如果没有可见子节点（被折叠），使用默认位置
+          nodePositions.set(parentNode.id, {
+            x: (level - 1) * 280,
+            y: 0
+          });
+        }
+      });
+      
+      // 处理同级节点重叠问题：如果父节点间距太小，需要调整
+      const levelNodes = currentLevelNodes.filter(node => nodePositions.has(node.id));
+      levelNodes.sort((a, b) => nodePositions.get(a.id).y - nodePositions.get(b.id).y);
+      
+      const minParentSpacing = 100;
+      for (let i = 1; i < levelNodes.length; i++) {
+        const prevNode = levelNodes[i - 1];
+        const currentNode = levelNodes[i];
+        const prevY = nodePositions.get(prevNode.id).y;
+        const currentY = nodePositions.get(currentNode.id).y;
+        
+        if (currentY - prevY < minParentSpacing) {
+          // 需要调整当前节点及其后续节点的位置
+          const adjustment = minParentSpacing - (currentY - prevY);
+          for (let j = i; j < levelNodes.length; j++) {
+            const nodeToAdjust = levelNodes[j];
+            const pos = nodePositions.get(nodeToAdjust.id);
+            nodePositions.set(nodeToAdjust.id, {
+              x: pos.x,
+              y: pos.y + adjustment
+            });
+          }
+        }
+      }
+    }
+    
     // 为每个节点分配位置
     Object.keys(levelGroups).forEach(level => {
       const levelNodes = levelGroups[level];
@@ -270,16 +397,16 @@ const ModernMindMap = ({ nodes, language }) => {
             ? node.id.toString() 
             : `fallback-node-${levelNum}-${index}-${Math.random().toString(36).substr(2, 9)}`;
           
-          // 节点创建日志（可在需要时启用）
-          // console.log('Creating node:', nodeId, node.text);
+          // 获取计算好的位置
+          const position = nodePositions.get(node.id) || {
+            x: (levelNum - 1) * 280,
+            y: index * 120 - (levelNodes.length - 1) * 60
+          };
           
           reactFlowNodes.push({
             id: nodeId,
             type: 'mindMapNode',
-            position: {
-              x: (levelNum - 1) * 250 + (levelNum > 1 ? (index - levelNodes.length / 2) * 50 : 0),
-              y: index * 120 - (levelNodes.length - 1) * 60
-            },
+            position: position,
             data: {
               label: node.text,
               level: node.level,
