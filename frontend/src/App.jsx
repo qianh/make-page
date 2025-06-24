@@ -430,57 +430,6 @@ function AppContent() {
                                 gap: '12px', 
                                 flexWrap: 'nowrap'
                             }}>
-                                {/* 生成按钮 */}
-                                <Button
-                                    type="primary"
-                                    size="large"
-                                    icon={<ExperimentOutlined />}
-                                    onClick={handleGenerate}
-                                    loading={isLoading}
-                                    disabled={!isLlmSelectionValid || blocks.length === 0}
-                                    style={{ 
-                                        minWidth: windowWidth < 768 ? '120px' : '140px',
-                                        width: 'auto',
-                                        maxWidth: '160px',
-                                        height: '36px',
-                                        borderRadius: '18px', 
-                                        background: 'linear-gradient(135deg, var(--theme-primary, #007aff) 0%, var(--theme-accent, #34c759) 100%)',
-                                        border: 'none',
-                                        color: '#ffffff',
-                                        boxShadow: '0 4px 12px rgba(var(--theme-primary), 0.3)',
-                                        fontWeight: 600,
-                                        fontSize: '13px',
-                                        letterSpacing: '0.3px',
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                        transition: 'all 0.3s ease',
-                                        flexShrink: 0
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.target.style.transform = 'translateY(-1px)';
-                                        e.target.style.boxShadow = '0 6px 16px rgba(var(--theme-primary), 0.4)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.target.style.transform = 'translateY(0)';
-                                        e.target.style.boxShadow = '0 4px 12px rgba(var(--theme-primary), 0.3)';
-                                    }}
-                                >
-                                    <span style={{position: 'relative', zIndex: 2}}>
-                                        {isLoading ? t('generating') : t('generateArticle')}
-                                    </span>
-                                    {/* 按钮光效 */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: '-100%',
-                                        width: '100%',
-                                        height: '100%',
-                                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                                        animation: isLoading ? 'none' : 'shimmer 2s infinite',
-                                        zIndex: 1
-                                    }} />
-                                </Button>
-                                
                                 {/* 内容块按钮组 */}
                                 <div style={{
                                     display: 'flex',
@@ -599,6 +548,135 @@ function AppContent() {
                       ),
                       children: (
                         <div style={{ minHeight: 'calc(100vh - 320px)' }}>
+                          {/* 生成控制面板 */}
+                          <Card 
+                            size="small"
+                            style={{ 
+                              marginBottom: '16px',
+                              background: 'var(--theme-surface, rgba(255,255,255,0.8))',
+                              border: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
+                              borderRadius: '12px',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                            }}
+                            styles={{
+                              header: { 
+                                borderBottom: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
+                                padding: '12px 16px'
+                              },
+                              body: { padding: '16px' }
+                            }}
+                            title={
+                              <Space>
+                                <ExperimentOutlined style={{ color: 'var(--theme-primary, #007aff)' }} />
+                                <Title level={5} style={{ margin: 0, color: 'var(--theme-text)' }}>
+                                  {currentLanguage === 'zh' ? 'AI 内容编织' : 'AI Content Weaving'}
+                                </Title>
+                              </Space>
+                            }
+                            extra={
+                              <Space>
+                                {blocks.length > 0 && (
+                                  <Text type="secondary" style={{ fontSize: '12px' }}>
+                                    {blocks.length} {currentLanguage === 'zh' ? '个内容块' : 'blocks'} 
+                                    ({blockCounts.text} {currentLanguage === 'zh' ? '文本' : 'text'}, {blockCounts.code} {currentLanguage === 'zh' ? '代码' : 'code'}, {blockCounts.image} {currentLanguage === 'zh' ? '图片' : 'image'})
+                                  </Text>
+                                )}
+                                <Button
+                                  type="primary"
+                                  icon={<ExperimentOutlined />}
+                                  onClick={handleGenerate}
+                                  loading={isLoading}
+                                  disabled={!isLlmSelectionValid || blocks.length === 0}
+                                  style={{
+                                    borderRadius: '8px',
+                                    background: 'linear-gradient(135deg, var(--theme-primary, #007aff) 0%, var(--theme-accent, #34c759) 100%)',
+                                    border: 'none'
+                                  }}
+                                >
+                                  {isLoading 
+                                    ? (currentLanguage === 'zh' ? '编织中...' : 'Weaving...') 
+                                    : (currentLanguage === 'zh' ? '编织文章' : 'Weave Article')
+                                  }
+                                </Button>
+                              </Space>
+                            }
+                          >
+                            {/* 内容为空时的提示 */}
+                            {blocks.length === 0 && (
+                              <Empty
+                                image={<BulbOutlined style={{ fontSize: 48, color: '#ccc' }} />}
+                                description={
+                                  <Space direction="vertical" align="center">
+                                    <Text type="secondary" style={{ fontSize: '16px' }}>
+                                      {currentLanguage === 'zh' ? '准备编织您的内容' : 'Ready to Weave Your Content'}
+                                    </Text>
+                                    <Text type="secondary" style={{ fontSize: '14px' }}>
+                                      {currentLanguage === 'zh' 
+                                        ? '请先添加文本、代码或图片内容块，然后点击"编织文章"按钮' 
+                                        : 'Please add text, code, or image blocks first, then click "Weave Article" button'
+                                      }
+                                    </Text>
+                                  </Space>
+                                }
+                                style={{ padding: '20px' }}
+                              />
+                            )}
+
+                            {/* 有内容但未生成时的状态 */}
+                            {blocks.length > 0 && !generatedArticle && !isLoading && (
+                              <div style={{ 
+                                padding: '16px 20px',
+                                background: 'linear-gradient(135deg, var(--theme-primary, #007aff)10, var(--theme-accent, #34c759)10)',
+                                borderRadius: '8px',
+                                border: '1px solid var(--theme-primary, #007aff)20'
+                              }}>
+                                <Row gutter={16} align="middle">
+                                  <Col>
+                                    <Text strong style={{ color: 'var(--theme-text)' }}>
+                                      {currentLanguage === 'zh' ? '内容已准备就绪' : 'Content Ready'}:
+                                    </Text>
+                                  </Col>
+                                  <Col>
+                                    <Space size="large">
+                                      <Text style={{ fontSize: '12px', color: 'var(--theme-textSecondary)' }}>
+                                        {blockCounts.text} {currentLanguage === 'zh' ? '个文本块' : 'text blocks'}
+                                      </Text>
+                                      <Text style={{ fontSize: '12px', color: 'var(--theme-textSecondary)' }}>
+                                        {blockCounts.code} {currentLanguage === 'zh' ? '个代码块' : 'code blocks'}
+                                      </Text>
+                                      <Text style={{ fontSize: '12px', color: 'var(--theme-textSecondary)' }}>
+                                        {blockCounts.image} {currentLanguage === 'zh' ? '个图片块' : 'image blocks'}
+                                      </Text>
+                                    </Space>
+                                  </Col>
+                                </Row>
+                              </div>
+                            )}
+
+                            {/* 生成中的加载状态 */}
+                            {isLoading && (
+                              <div style={{ 
+                                textAlign: 'center', 
+                                padding: '40px 20px',
+                                background: 'var(--theme-background, rgba(248,248,249,0.3))',
+                                borderRadius: '8px',
+                                border: '1px solid var(--theme-border, rgba(0,0,0,0.06))'
+                              }}>
+                                <Spin size="large" />
+                                <div style={{ marginTop: '16px' }}>
+                                  <Text style={{ fontSize: '16px', color: 'var(--theme-text)' }}>
+                                    {currentLanguage === 'zh' ? 'AI 正在编织您的文章...' : 'AI is weaving your article...'}
+                                  </Text>
+                                  <br />
+                                  <Text type="secondary" style={{ fontSize: '14px' }}>
+                                    {currentLanguage === 'zh' ? '这可能需要几秒钟时间' : 'This may take a few seconds'}
+                                  </Text>
+                                </div>
+                              </div>
+                            )}
+                          </Card>
+
+                          {/* 生成结果展示 */}
                           {generatedArticle && generatedArticle.status === "success" ? (
                             <EditableOutput 
                               generatedArticle={generatedArticle} 
@@ -611,26 +689,7 @@ function AppContent() {
                               title={generatedArticle.title}
                               subTitle={generatedArticle.subTitle}
                             />
-                          ) : (
-                            <Empty
-                              image={<BulbOutlined style={{ fontSize: 72, color: '#007aff' }} />}
-                              styles={{image: { height: 100, marginBottom: 24, marginTop: 60}}}
-                              description={
-                                <Space direction="vertical" align="center">
-                                  <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>{currentLanguage === 'zh' ? '准备生成' : 'Ready to Generate'}</Title>
-                                  <Paragraph style={{color: 'rgba(0,0,0,0.45)'}}>{currentLanguage === 'zh' ? '使用上方按钮添加内容，然后生成您的文章。' : 'Add content using the buttons above, then generate your article.'}</Paragraph>
-                                  {blocks.length > 0 && (
-                                    <Text style={{color: 'rgba(0,0,0,0.6)', fontSize: '14px'}}>
-                                      {currentLanguage === 'zh' ? 
-                                        `${blockCounts.text} 个文本，${blockCounts.code} 个代码，${blockCounts.image} 个图片块已准备` :
-                                        `${blockCounts.text} Text, ${blockCounts.code} Code, ${blockCounts.image} Image blocks ready`
-                                      }
-                                    </Text>
-                                  )}
-                                </Space>
-                              }
-                            />
-                          )}
+                          ) : null}
                         </div>
                       )
                     },
