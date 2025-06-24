@@ -15,7 +15,7 @@ import {
   Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Spin, message, Modal, Badge, Dropdown, Tabs
 } from 'antd';
 import {
-  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined, SettingOutlined, GlobalOutlined, BarChartOutlined
+  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined, SettingOutlined, GlobalOutlined, BarChartOutlined, MenuFoldOutlined, MenuUnfoldOutlined
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
@@ -42,8 +42,8 @@ function AppContent() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('default');
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [activeMainTab, setActiveMainTab] = useState('generate'); // 'generate' or 'analysis'
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     setIsLlmSelectionValid(!!(selectedLlm.provider && selectedLlm.model_name));
@@ -56,15 +56,6 @@ function AppContent() {
     applyTheme(getThemeById(savedTheme));
   }, []);
 
-  // 监听窗口大小变化
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // 主题变化处理
   const handleThemeChange = useCallback((themeId) => {
@@ -319,31 +310,68 @@ function AppContent() {
       <Content style={{ padding: '24px 48px', marginTop: 88, minHeight: 'calc(100vh - 88px)' }}> {/* Adjust marginTop for fixed header height */}
         <Space direction="vertical" size="large" style={{width: '100%'}}>
           <Row gutter={[32, 32]}> {/* Increased gutter for more spacing */}
-            <Col xs={24} lg={8} xl={7}>
-              <LLMSelector
-                selectedLlm={selectedLlm}
-                onLlmChange={handleLlmChange}
-                currentBlocks={blocks}
-              />
-              <LanguageSelector
-                selectedLanguage={selectedLanguage}
-                selectedStyle={selectedStyle}
-                onLanguageChange={handleLanguageChange}
-                onStyleChange={handleStyleChange}
-                wordCountRange={wordCountRange}
-                onWordCountChange={handleWordCountChange}
-                selectedHtmlStyle={selectedHtmlStyle}
-                onHtmlStyleChange={handleHtmlStyleChange}
-              />
-              <FusionDegreeSelector
-                fusionDegree={fusionDegree}
-                onFusionDegreeChange={setFusionDegree}
-                enableSvgOutput={enableSvgOutput}
-                onSvgOutputChange={setEnableSvgOutput}
-              />
-            </Col>
+            {!sidebarCollapsed && (
+              <Col xs={24} lg={8} xl={7}>
+                <div style={{ position: 'relative' }}>
+                  {/* 收起按钮 */}
+                  <Button
+                    type="text"
+                    icon={<MenuFoldOutlined />}
+                    onClick={() => setSidebarCollapsed(true)}
+                    style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      zIndex: 10,
+                      borderRadius: '6px',
+                      color: 'var(--theme-textSecondary)',
+                      fontSize: '14px'
+                    }}
+                    title={currentLanguage === 'zh' ? '收起配置面板' : 'Collapse Config Panel'}
+                  />
+                  <LLMSelector
+                    selectedLlm={selectedLlm}
+                    onLlmChange={handleLlmChange}
+                    currentBlocks={blocks}
+                  />
+                  <LanguageSelector
+                    selectedLanguage={selectedLanguage}
+                    selectedStyle={selectedStyle}
+                    onLanguageChange={handleLanguageChange}
+                    onStyleChange={handleStyleChange}
+                    wordCountRange={wordCountRange}
+                    onWordCountChange={handleWordCountChange}
+                    selectedHtmlStyle={selectedHtmlStyle}
+                    onHtmlStyleChange={handleHtmlStyleChange}
+                  />
+                  <FusionDegreeSelector
+                    fusionDegree={fusionDegree}
+                    onFusionDegreeChange={setFusionDegree}
+                    enableSvgOutput={enableSvgOutput}
+                    onSvgOutputChange={setEnableSvgOutput}
+                  />
+                </div>
+              </Col>
+            )}
 
-            <Col xs={24} lg={16} xl={17}>
+            <Col xs={24} lg={sidebarCollapsed ? 24 : 16} xl={sidebarCollapsed ? 24 : 17}>
+              {/* 展开按钮 - 只在收起状态时显示 */}
+              {sidebarCollapsed && (
+                <div style={{ marginBottom: '16px' }}>
+                  <Button
+                    type="primary"
+                    icon={<MenuUnfoldOutlined />}
+                    onClick={() => setSidebarCollapsed(false)}
+                    style={{
+                      borderRadius: '8px',
+                      background: 'var(--theme-primary)',
+                      border: 'none'
+                    }}
+                  >
+                    {currentLanguage === 'zh' ? '展开配置' : 'Show Config'}
+                  </Button>
+                </div>
+              )}
               <Card 
                 variant="filled"
                 style={{ 
