@@ -167,17 +167,25 @@ const ContentAnalysisPanel = ({
         </Space>
       }
       style={{ 
+        height: '100%',
         background: 'var(--theme-surface, rgba(255,255,255,0.8))',
         border: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
         borderRadius: '16px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
       styles={{
         header: { 
           borderBottom: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
           padding: '16px 20px'
         },
-        body: { padding: '20px' }
+        body: { 
+          padding: '20px',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column'
+        }
       }}
       extra={
         <Space>
@@ -247,7 +255,13 @@ const ContentAnalysisPanel = ({
               </Text>
             </Space>
           }
-          style={{ padding: '40px 20px' }}
+          style={{ 
+            padding: '40px 20px',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
+          }}
         />
       )}
 

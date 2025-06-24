@@ -17,7 +17,7 @@
   --theme-accentSecondary: #764ba2;
   --theme-backdrop: blur(10px);
   --theme-shadow: 0 12px 28px rgba(0,0,0,0.06);
-  --theme-shadowHover: 0 16px 32px rgba(0,0,0,0.12);
+  --theme-shadowHover: none;
   --theme-borderRadius: 16px;
   --theme-borderRadiusSmall: 8px;
 
@@ -98,6 +98,32 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* 平滑的主题切换动画 */
+}
+
+/* 确保 Tabs 内容区域撑满高度 */
+.full-height-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-height-tabs .ant-tabs-content-holder {
+  flex: 1;
+  overflow: hidden;
+}
+
+.full-height-tabs .ant-tabs-content {
+  height: 100%;
+}
+
+.full-height-tabs .ant-tabs-tabpane {
+  height: 100%;
+  overflow: auto;
+}
+
+.full-height-tabs .ant-tabs-tabpane-active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 code, pre {
@@ -546,7 +572,7 @@ a:focus-visible { /* Modern way to show focus rings only for keyboard nav */
 
 .ant-card:hover {
   border-color: var(--theme-borderHover) !important;
-  box-shadow: var(--theme-shadowHover) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
 }
 
 .ant-typography {

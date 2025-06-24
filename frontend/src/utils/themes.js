@@ -25,7 +25,7 @@ export const themes = {
     effects: {
       backdrop: 'blur(10px)',
       shadow: '0 12px 28px rgba(0,0,0,0.06)',
-      shadowHover: '0 16px 32px rgba(0,0,0,0.12)',
+      shadowHover: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
       borderRadius: '16px',
       borderRadiusSmall: '8px'
     }
@@ -56,7 +56,7 @@ export const themes = {
     effects: {
       backdrop: 'blur(15px)',
       shadow: '0 25px 50px rgba(79, 70, 229, 0.25)',
-      shadowHover: '0 35px 60px rgba(79, 70, 229, 0.35)',
+      shadowHover: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
       borderRadius: '20px',
       borderRadiusSmall: '12px'
     }
@@ -87,7 +87,7 @@ export const themes = {
     effects: {
       backdrop: 'blur(20px)',
       shadow: '0 20px 40px rgba(102, 126, 234, 0.3)',
-      shadowHover: '0 30px 50px rgba(102, 126, 234, 0.4)',
+      shadowHover: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
       borderRadius: '24px',
       borderRadiusSmall: '16px'
     }
@@ -118,7 +118,7 @@ export const themes = {
     effects: {
       backdrop: 'blur(12px)',
       shadow: '0 15px 30px rgba(5, 150, 105, 0.15)',
-      shadowHover: '0 20px 40px rgba(5, 150, 105, 0.25)',
+      shadowHover: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
       borderRadius: '18px',
       borderRadiusSmall: '10px'
     }
@@ -149,7 +149,7 @@ export const themes = {
     effects: {
       backdrop: 'blur(10px)',
       shadow: '0 20px 25px rgba(0, 0, 0, 0.5)',
-      shadowHover: '0 25px 35px rgba(0, 0, 0, 0.6)',
+      shadowHover: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
       borderRadius: '16px',
       borderRadiusSmall: '8px'
     }
@@ -180,7 +180,7 @@ export const themes = {
     effects: {
       backdrop: 'blur(15px)',
       shadow: '0 15px 35px rgba(236, 72, 153, 0.2)',
-      shadowHover: '0 20px 40px rgba(236, 72, 153, 0.3)',
+      shadowHover: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
       borderRadius: '20px',
       borderRadiusSmall: '12px'
     }

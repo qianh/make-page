@@ -307,9 +307,9 @@ function AppContent() {
           </Col>
         </Row>
       </Header>
-      <Content style={{ padding: '24px 48px', marginTop: 88, minHeight: 'calc(100vh - 88px)' }}> {/* Adjust marginTop for fixed header height */}
-        <Space direction="vertical" size="large" style={{width: '100%'}}>
-          <Row gutter={[32, 32]}> {/* Increased gutter for more spacing */}
+      <Content style={{ padding: '24px 48px', marginTop: 88, height: 'calc(100vh - 88px)', display: 'flex', flexDirection: 'column' }}> {/* Adjust marginTop for fixed header height */}
+        <Space direction="vertical" size="large" style={{width: '100%', flex: 1, display: 'flex', flexDirection: 'column'}}>
+          <Row gutter={[24, 24]} style={{flex: 1, display: 'flex'}}> {/* Consistent gutter spacing */}
             {!sidebarCollapsed && (
               <Col xs={24} lg={8} xl={7}>
                 <div style={{ position: 'relative' }}>
@@ -354,7 +354,7 @@ function AppContent() {
               </Col>
             )}
 
-            <Col xs={24} lg={sidebarCollapsed ? 24 : 16} xl={sidebarCollapsed ? 24 : 17}>
+            <Col xs={24} lg={sidebarCollapsed ? 24 : 16} xl={sidebarCollapsed ? 24 : 17} style={{display: 'flex', flexDirection: 'column', flex: 1}}>
               {/* 展开按钮 - 只在收起状态时显示 */}
               {sidebarCollapsed && (
                 <div style={{ marginBottom: '16px' }}>
@@ -376,13 +376,16 @@ function AppContent() {
                 variant="filled"
                 style={{ 
                   borderRadius: 'var(--theme-borderRadius, 16px)', 
-                  boxShadow: 'var(--theme-shadow, 0 12px 28px rgba(0,0,0,0.06))', 
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.08)', 
                   minHeight: 'calc(100vh - 180px)',
                   background: 'var(--theme-surface, rgba(255,255,255,0.8))',
                   backdropFilter: 'var(--theme-backdrop, blur(10px))',
-                  border: 'none'
+                  border: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
-                styles={{body: {padding: 0}}}
+                styles={{body: {padding: 0, flex: 1, display: 'flex', flexDirection: 'column'}}}
               >
                 <div style={{
                     padding: '32px 32px 24px 32px', 
@@ -561,9 +564,10 @@ function AppContent() {
                   activeKey={activeMainTab}
                   onChange={setActiveMainTab}
                   size="large"
+                  className="full-height-tabs"
                   style={{ 
-                    padding: '0 24px',
-                    minHeight: 'calc(100vh - 280px)'
+                    padding: '0 20px 20px 20px',
+                    flex: 1
                   }}
                   items={[
                     {
@@ -575,28 +579,41 @@ function AppContent() {
                         </Space>
                       ),
                       children: (
-                        <div style={{ minHeight: 'calc(100vh - 320px)' }}>
+                        <div style={{ 
+                          height: '100%', 
+                          boxSizing: 'border-box',
+                          display: 'flex',
+                          flexDirection: 'column'
+                        }}>
                           {/* 生成控制面板 */}
                           <Card 
                             size="small"
                             style={{ 
-                              marginBottom: '16px',
+                              flex: 1,
+                              minHeight: 0,
                               background: 'var(--theme-surface, rgba(255,255,255,0.8))',
                               border: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
-                              borderRadius: '12px',
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                              borderRadius: '16px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
                             styles={{
                               header: { 
                                 borderBottom: '1px solid var(--theme-border, rgba(0,0,0,0.06))',
-                                padding: '12px 16px'
+                                padding: '16px 20px'
                               },
-                              body: { padding: '16px' }
+                              body: { 
+                                padding: '20px',
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column'
+                              }
                             }}
                             title={
                               <Space>
                                 <ExperimentOutlined style={{ color: 'var(--theme-primary, #007aff)' }} />
-                                <Title level={5} style={{ margin: 0, color: 'var(--theme-text)' }}>
+                                <Title level={4} style={{ margin: 0, color: 'var(--theme-text)' }}>
                                   {currentLanguage === 'zh' ? 'AI 内容编织' : 'AI Content Weaving'}
                                 </Title>
                               </Space>
@@ -735,7 +752,12 @@ function AppContent() {
                         </Space>
                       ),
                       children: (
-                        <div style={{ paddingTop: '16px' }}>
+                        <div style={{ 
+                          height: '100%', 
+                          boxSizing: 'border-box',
+                          display: 'flex',
+                          flexDirection: 'column'
+                        }}>
                           <ContentAnalysisPanel
                             contentBlocks={blocks}
                             language={currentLanguage}
