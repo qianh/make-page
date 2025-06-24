@@ -11,13 +11,19 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
+    "@reactflow/background": "^11.3.14",
+    "@reactflow/controls": "^11.2.14",
     "antd": "^5.18.3",
+    "d3": "^7.9.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
+    "markmap-lib": "^0.18.12",
+    "markmap-view": "^0.18.12",
     "quill": "^2.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-quill": "^2.0.0"
+    "react-quill": "^2.0.0",
+    "reactflow": "^11.11.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

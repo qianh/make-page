@@ -6,15 +6,16 @@ import EditableOutput from './components/EditableOutput';
 import ObsidianImporter from './components/ObsidianImporter';
 import FusionDegreeSelector from './components/FusionDegreeSelector';
 import ThemeModal from './components/ThemeModal';
+import ContentAnalysisPanel from './components/ContentAnalysisPanel';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { applyTheme, getThemeById, loadThemePreference, saveThemePreference } from './utils/themes';
 import './index.css'; // Global base styles
 
 import {
-  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Spin, message, Modal, Badge, Dropdown
+  Layout, Row, Col, Button, Typography, Space, Empty, Result, Card, Divider, Spin, message, Modal, Badge, Dropdown, Tabs
 } from 'antd';
 import {
-  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined, SettingOutlined, GlobalOutlined
+  PlusOutlined, FileTextOutlined, CodeOutlined, PictureOutlined, ExperimentOutlined, BulbOutlined, BranchesOutlined, ImportOutlined, SettingOutlined, GlobalOutlined, BarChartOutlined
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
@@ -42,6 +43,7 @@ function AppContent() {
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('default');
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [activeMainTab, setActiveMainTab] = useState('generate'); // 'generate' or 'analysis'
 
   useEffect(() => {
     setIsLlmSelectionValid(!!(selectedLlm.provider && selectedLlm.model_name));
@@ -197,6 +199,37 @@ function AppContent() {
       preview_html: editedHtml
     }));
   }, []);
+
+  // 处理跳转到源内容
+  const handleJumpToSource = useCallback((blockIndex) => {
+    // 切换到生成标签页
+    setActiveMainTab('generate');
+    
+    // 根据块类型打开相应的模态框
+    if (blocks[blockIndex]) {
+      const block = blocks[blockIndex];
+      switch (block.type) {
+        case 'text':
+          setIsTextModalOpen(true);
+          break;
+        case 'code':
+          setIsCodeModalOpen(true);
+          break;
+        case 'image':
+          setIsImageModalOpen(true);
+          break;
+        default:
+          break;
+      }
+      
+      // 可以在这里添加滚动到特定位置的逻辑
+      message.info(
+        currentLanguage === 'zh' 
+          ? `跳转到${block.type === 'text' ? '文本' : block.type === 'code' ? '代码' : '图片'}块 ${blockIndex + 1}` 
+          : `Jump to ${block.type} block ${blockIndex + 1}`
+      );
+    }
+  }, [blocks, currentLanguage]);
 
   const getBlockCounts = () => {
     const counts = { text: 0, code: 0, image: 0 };
@@ -545,40 +578,87 @@ function AppContent() {
                         </Col>
                     </Row>
                 </div>
-                <div style={{padding: '0 24px', minHeight: 'calc(100vh - 280px)', overflow: 'auto' }}>
-                  {generatedArticle && generatedArticle.status === "success" ? (
-                    <EditableOutput 
-                      generatedArticle={generatedArticle} 
-                      onSave={handleSaveEditedContent}
-                      selectedHtmlStyle={selectedHtmlStyle}
-                    />
-                  ) : generatedArticle && generatedArticle.status === "error" ? (
-                    <Result
-                      status="error"
-                      title={generatedArticle.title}
-                      subTitle={generatedArticle.subTitle}
-                    />
-                  ) : (
-                    <Empty
-                      image={<BulbOutlined style={{ fontSize: 72, color: '#007aff' }} />}
-                      styles={{image: { height: 100, marginBottom: 24, marginTop: 60}}}
-                      description={
-                        <Space direction="vertical" align="center">
-                          <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>{currentLanguage === 'zh' ? '准备生成' : 'Ready to Generate'}</Title>
-                          <Paragraph style={{color: 'rgba(0,0,0,0.45)'}}>{currentLanguage === 'zh' ? '使用上方按钮添加内容，然后生成您的文章。' : 'Add content using the buttons above, then generate your article.'}</Paragraph>
-                          {blocks.length > 0 && (
-                            <Text style={{color: 'rgba(0,0,0,0.6)', fontSize: '14px'}}>
-                              {currentLanguage === 'zh' ? 
-                                `${blockCounts.text} 个文本，${blockCounts.code} 个代码，${blockCounts.image} 个图片块已准备` :
-                                `${blockCounts.text} Text, ${blockCounts.code} Code, ${blockCounts.image} Image blocks ready`
+                
+                {/* 主内容标签页 */}
+                <Tabs
+                  activeKey={activeMainTab}
+                  onChange={setActiveMainTab}
+                  size="large"
+                  style={{ 
+                    padding: '0 24px',
+                    minHeight: 'calc(100vh - 280px)'
+                  }}
+                  items={[
+                    {
+                      key: 'generate',
+                      label: (
+                        <Space>
+                          <ExperimentOutlined />
+                          {currentLanguage === 'zh' ? '内容生成' : 'Content Generation'}
+                        </Space>
+                      ),
+                      children: (
+                        <div style={{ minHeight: 'calc(100vh - 320px)' }}>
+                          {generatedArticle && generatedArticle.status === "success" ? (
+                            <EditableOutput 
+                              generatedArticle={generatedArticle} 
+                              onSave={handleSaveEditedContent}
+                              selectedHtmlStyle={selectedHtmlStyle}
+                            />
+                          ) : generatedArticle && generatedArticle.status === "error" ? (
+                            <Result
+                              status="error"
+                              title={generatedArticle.title}
+                              subTitle={generatedArticle.subTitle}
+                            />
+                          ) : (
+                            <Empty
+                              image={<BulbOutlined style={{ fontSize: 72, color: '#007aff' }} />}
+                              styles={{image: { height: 100, marginBottom: 24, marginTop: 60}}}
+                              description={
+                                <Space direction="vertical" align="center">
+                                  <Title level={5} style={{color: 'rgba(0,0,0,0.6)'}}>{currentLanguage === 'zh' ? '准备生成' : 'Ready to Generate'}</Title>
+                                  <Paragraph style={{color: 'rgba(0,0,0,0.45)'}}>{currentLanguage === 'zh' ? '使用上方按钮添加内容，然后生成您的文章。' : 'Add content using the buttons above, then generate your article.'}</Paragraph>
+                                  {blocks.length > 0 && (
+                                    <Text style={{color: 'rgba(0,0,0,0.6)', fontSize: '14px'}}>
+                                      {currentLanguage === 'zh' ? 
+                                        `${blockCounts.text} 个文本，${blockCounts.code} 个代码，${blockCounts.image} 个图片块已准备` :
+                                        `${blockCounts.text} Text, ${blockCounts.code} Code, ${blockCounts.image} Image blocks ready`
+                                      }
+                                    </Text>
+                                  )}
+                                </Space>
                               }
+                            />
+                          )}
+                        </div>
+                      )
+                    },
+                    {
+                      key: 'analysis',
+                      label: (
+                        <Space>
+                          <BarChartOutlined />
+                          {currentLanguage === 'zh' ? '内容分析' : 'Content Analysis'}
+                          {blocks.length > 0 && (
+                            <Text type="secondary" style={{ fontSize: '11px' }}>
+                              ({blocks.length})
                             </Text>
                           )}
                         </Space>
-                      }
-                    />
-                  )}
-                </div>
+                      ),
+                      children: (
+                        <div style={{ paddingTop: '16px' }}>
+                          <ContentAnalysisPanel
+                            contentBlocks={blocks}
+                            language={currentLanguage}
+                            onJumpToSource={handleJumpToSource}
+                          />
+                        </div>
+                      )
+                    }
+                  ]}
+                />
               </Card>
             </Col>
           </Row>

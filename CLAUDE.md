@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an "AI Content Weaver" application. It's a full-stack web app with a React frontend and a Python FastAPI backend. The application allows users to input various content blocks (text, code, images via URL), select a Large Language Model (LLM), and generate a cohesive, well-structured article from the inputs.
+This is an "AI Content Weaver" application - a sophisticated full-stack web application that allows users to input various content blocks (text, code, images), select Large Language Models (LLMs), and generate cohesive, well-structured articles. The application features comprehensive internationalization, advanced theming, content analysis capabilities, and export functionality.
 
 ## Architecture
 
 The project is a monorepo containing two main parts:
 
--   `frontend/`: A React single-page application built with Vite. It's responsible for the user interface, state management, and communicating with the backend. It uses Ant Design for UI components and Tailwind CSS for styling.
--   `backend/`: A Python API built with FastAPI. It handles business logic, interacts with external LLM APIs, and processes user content.
+-   `frontend/`: A React SPA built with Vite, featuring Ant Design components, comprehensive i18n support (Chinese/English), advanced theming system, and modal-based content management
+-   `backend/`: A Python FastAPI service with extensible LLM provider architecture, image processing pipeline, and content analysis capabilities
 
 ### Backend Key Concepts
 
@@ -25,13 +25,16 @@ The project is a monorepo containing two main parts:
 
 ### Frontend Key Concepts
 
--   **Vite Proxy**: `frontend/vite.config.js` is configured to proxy all requests from `/api` to the backend server running at `http://localhost:8000`. This is crucial for local development to avoid CORS issues. All frontend API calls should be made to relative paths like `/api/v1/generate`.
--   **Component Structure**:
-    -   `App.jsx` is the main component, managing the overall application state (content blocks, selected LLM, generated article).
-    -   `components/LLMSelector.jsx` fetches and displays available LLMs from the `/api/v1/llms` endpoint.
-    -   `components/ContentBlockInput.jsx` is a dynamic component for adding/editing text, code, or image blocks.
-    -   `components/EditableOutput.jsx` provides rich text editing of generated content using React-Quill.
-    -   `components/ObsidianImporter.jsx` handles importing markdown files from Obsidian vaults.
+-   **Vite Proxy**: `frontend/vite.config.js` proxies `/api` requests to `http://localhost:8000` for CORS-free development
+-   **Internationalization**: `contexts/LanguageContext.jsx` provides comprehensive Chinese/English translations with context-aware text switching
+-   **Theming System**: `utils/themes.js` defines multiple visual themes (default, deepSpace, etc.) with CSS variable-based styling
+-   **Component Architecture**:
+    -   `App.jsx`: Main application state management with tabbed interface (content generation vs analysis)
+    -   `components/LLMSelector.jsx`: Dynamic LLM provider and model selection with capability validation
+    -   `components/ContentBlockInput.jsx`: Modal-based content block management with UUID tracking
+    -   `components/EditableOutput.jsx`: Rich text editing with React-Quill and export capabilities (PDF/image via html2canvas/jsPDF)
+    -   `components/ContentAnalysisPanel.jsx`: Content analysis with keywords, mind maps, and summaries
+    -   `components/ThemeModal.jsx`: Visual theme selection and customization
 
 ## Development
 
@@ -45,9 +48,9 @@ export GOOGLE_API_KEY="your_actual_api_key"
 
 ### Common Commands
 
-The repository includes scripts to manage starting and stopping both services simultaneously.
+The repository includes automated scripts for service management:
 
--   **Start both services**:
+-   **Start both services** (recommended for development):
     ```bash
     ./start_services.sh
     ```
@@ -56,48 +59,40 @@ The repository includes scripts to manage starting and stopping both services si
     ./stop_services.sh
     ```
 
-#### Backend
+#### Backend Commands
 
-The backend uses `uv` for ultra-fast dependency management and virtual environments.
+The backend uses `uv` for ultra-fast dependency management. From `backend/` directory:
 
--   **Set up and run backend server (from `backend/` directory)**:
+-   **Development server**:
     ```bash
-    # Set up virtual env and install dependencies (first time)
-    uv venv
-    uv pip sync
-
-    # Run the server
     uv run uvicorn main:app --reload --port 8000
     ```
-
--   **Install new dependencies**:
+-   **Install dependencies** (managed via pyproject.toml):
+    ```bash
+    uv venv --allow-existing
+    uv pip sync
+    ```
+-   **Add new dependencies**:
     ```bash
     uv add package_name
     ```
 
-#### Frontend
+#### Frontend Commands
 
-The frontend uses `npm` for package management and Vite for development.
+From `frontend/` directory:
 
--   **Run the frontend dev server (from `frontend/` directory)**:
+-   **Development server**:
     ```bash
-    # Install dependencies (first time)
-    npm install
-
-    # Run the server
     npm run dev
     ```
-
--   **Lint frontend code**:
+-   **Lint code** (ESLint with React hooks plugin):
     ```bash
     npm run lint
     ```
-
 -   **Build for production**:
     ```bash
     npm run build
     ```
-
 -   **Preview production build**:
     ```bash
     npm run preview
@@ -156,9 +151,33 @@ The application uses sophisticated bash scripts (`start_services.sh`/`stop_servi
 - Modal-based UI architecture for different content types
 - Real-time validation and user feedback throughout the UI
 
+## Important Development Patterns
+
+### Ant Design Component Migration
+When working with Ant Design components, be aware of API changes:
+- Use `variant` prop instead of deprecated `bordered` for Card components
+- Use `styles.header` instead of deprecated `headStyle` for Card headers
+- Always check component documentation for latest API patterns
+
+### State Management Patterns
+- Frontend uses React hooks exclusively (no external state libraries)
+- UUID-based content block identification for reliable tracking
+- Modal state managed at App level with dedicated boolean flags
+- Real-time validation with immediate user feedback
+
+### Internationalization Implementation
+- Language switching updates both interface text and content preferences
+- Theme variables support CSS custom properties for dynamic styling
+- Content analysis and generation respect language selection
+
+### Service Architecture
+- Automated service management via bash scripts with PID tracking
+- Process monitoring with port availability checking
+- Graceful shutdown handling and comprehensive error logging
+
 ## Development Notes
 
-- **No Testing Framework**: Currently no formal testing setup. Consider adding Jest/Vitest for frontend and pytest for backend.
-- **Modern Tooling**: Uses `uv` for ultra-fast Python dependency management and Vite for frontend builds.
-- **Obsidian Integration**: Native support for importing Obsidian vault files with recursive directory traversal and UTF-8 encoding handling.
-- **Export Capabilities**: Supports PDF and image export via html2canvas and jsPDF libraries.
+- **No Testing Framework**: Currently no formal testing setup
+- **Modern Tooling**: Uses `uv` for Python dependency management and Vite for frontend builds
+- **Export Capabilities**: PDF/image export via html2canvas and jsPDF libraries
+- **Image Processing**: Async HTTP client with PIL-based format normalization

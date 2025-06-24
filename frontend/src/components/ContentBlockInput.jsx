@@ -159,9 +159,9 @@ const ContentBlockInput = ({ block, index, updateBlock, removeBlock }) => {
 
   return (
     <Card 
-      bordered={false} 
+      variant="outlined" 
       style={{ marginBottom: 24, borderRadius: 16, boxShadow: '0 8px 24px rgba(0,0,0,0.05)' }}
-      headStyle={{borderBottom: '1px solid rgba(0,0,0,0.08)'}}
+      styles={{header: {borderBottom: '1px solid rgba(0,0,0,0.08)'}}}
       title={<Title level={5} style={{marginBottom: 0, fontWeight: 600}}>{block.type.charAt(0).toUpperCase() + block.type.slice(1)} Block</Title>}
       extra={
         <Button 

@@ -447,3 +447,71 @@ class GoogleGeminiLLMProvider(BaseLLMProvider):
             suggestions.append("Check if technical terms are properly localized for your target audience")
         
         return suggestions[:6]  # Limit to 6 suggestions to avoid overwhelming the user
+
+    async def generate_simple_text(
+        self,
+        prompt: str,
+        model_name: str = "gemini-2.5-flash"
+    ) -> str:
+        """
+        Generates simple text response from a prompt using the Gemini API.
+        
+        Args:
+            prompt: The text prompt to send to the LLM.
+            model_name: The model name to use for generation.
+            
+        Returns:
+            The generated text response as a string.
+        """
+        if not self.api_key_configured:
+            raise ValueError("Google Gemini API key is not configured")
+        
+        try:
+            # Initialize the model
+            model = genai.GenerativeModel(model_name)
+            
+            # Configure generation parameters
+            generation_config = genai.types.GenerationConfig(
+                temperature=0.7,
+                candidate_count=1,
+                max_output_tokens=4096
+            )
+            
+            # Set safety settings
+            safety_settings = {
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+            }
+            
+            # Make the API call
+            response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: model.generate_content(
+                    prompt,
+                    generation_config=generation_config,
+                    safety_settings=safety_settings
+                )
+            )
+            
+            # Process the response
+            if not response.candidates:
+                raise ValueError("No response candidates received from Gemini API")
+            
+            generated_text = ""
+            for part in response.candidates[0].content.parts:
+                if hasattr(part, 'text'):
+                    generated_text += part.text
+            
+            if not generated_text.strip():
+                raise ValueError("Gemini API response did not contain any usable text content")
+            
+            print(f"INFO: Successfully generated simple text response (length: {len(generated_text)} chars)")
+            return generated_text.strip()
+            
+        except Exception as e:
+            print(f"ERROR: Failed to generate simple text with Gemini API: {e}")
+            import traceback
+            traceback.print_exc()
+            raise RuntimeError(f"Failed to generate text: {str(e)}")

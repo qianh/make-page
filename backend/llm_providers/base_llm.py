@@ -22,3 +22,21 @@ class BaseLLMProvider(ABC):
             GeneratedContent object containing the title, markdown, HTML, and suggestions.
         """
         pass
+    
+    @abstractmethod
+    async def generate_simple_text(
+        self,
+        prompt: str,
+        model_name: str = "default"
+    ) -> str:
+        """
+        Generates simple text response from a prompt using the selected LLM.
+
+        Args:
+            prompt: The text prompt to send to the LLM.
+            model_name: The model name to use for generation.
+
+        Returns:
+            The generated text response as a string.
+        """
+        pass

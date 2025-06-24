@@ -95,3 +95,42 @@ class ObsidianVaultRequest(BaseModel):
 class ObsidianVaultResponse(BaseModel):
     files: List[ObsidianFile]
     vault_name: str
+
+# --- Content Analysis Models ---
+
+class KeywordTag(BaseModel):
+    keyword: str
+    importance: float = Field(..., ge=0.0, le=1.0)  # 重要性评分 0-1
+    category: Optional[str] = None  # 关键词分类
+
+class MindMapNode(BaseModel):
+    id: str
+    text: str
+    level: int = Field(..., ge=1)  # 节点层级，1为根节点
+    parent_id: Optional[str] = None
+    children: List[str] = []  # 子节点ID列表
+    position: Optional[dict] = None  # 节点位置信息
+
+class ContentReference(BaseModel):
+    source_block_index: int
+    source_text: str
+    reference_type: Literal["quote", "paraphrase", "summary"] = "quote"
+    start_position: Optional[int] = None
+    end_position: Optional[int] = None
+
+class ContentSummary(BaseModel):
+    title: str
+    summary: str
+    key_points: List[str]
+    references: List[ContentReference]
+
+class ContentAnalysisRequest(BaseModel):
+    user_input: UserInput
+    analysis_types: List[Literal["keywords", "mindmap", "summary"]] = ["keywords", "mindmap", "summary"]
+    language: Optional[str] = "zh"  # 分析语言
+
+class ContentAnalysisResponse(BaseModel):
+    keywords: Optional[List[KeywordTag]] = None
+    mindmap: Optional[List[MindMapNode]] = None
+    summary: Optional[ContentSummary] = None
+    analysis_language: str = "zh"
