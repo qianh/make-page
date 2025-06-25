@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Button, Card, Space, Modal, Typography, Row, Col, message, Tabs, Tooltip, Result } from 'antd';
+import { Button, Card, Space, Modal, Typography, Row, Col, message, Tabs, Tooltip, Result, Input, Form } from 'antd';
 import { 
   EditOutlined, 
   SaveOutlined, 
@@ -10,7 +10,8 @@ import {
   BulbOutlined,
   CopyOutlined,
   Html5Outlined,
-  ExportOutlined
+  ExportOutlined,
+  BookOutlined // For Obsidian
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -26,6 +27,8 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
   const [editedContent, setEditedContent] = useState('');
   const [isHtmlPreviewVisible, setIsHtmlPreviewVisible] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isObsidianModalVisible, setIsObsidianModalVisible] = useState(false);
+  const [obsidianForm] = Form.useForm();
   const previewRef = useRef(null);
 
   const generateHtmlTemplate = useCallback((content, style) => {
@@ -182,6 +185,39 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
     }
   }, [generatedArticle]);
 
+  const handleSaveToObsidian = async (values) => {
+    if (!generatedArticle || !generatedArticle.article_markdown) {
+      message.error("No content to save.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/v1/obsidian/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vault_path: values.vault_path,
+          folder_name: values.folder_name,
+          file_name: values.file_name,
+          content: generatedArticle.article_markdown,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to save to Obsidian");
+      }
+
+      message.success("Successfully saved to Obsidian!");
+      setIsObsidianModalVisible(false);
+      obsidianForm.resetFields();
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
+
   const quillModules = {
     toolbar: [
       [{ 'header': [1, 2, 3, false] }],
@@ -264,6 +300,15 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
                     shape="round"
                   >
                     Preview
+                  </Button>
+                </Tooltip>
+                <Tooltip title="Save to Obsidian">
+                  <Button
+                    icon={<BookOutlined />}
+                    onClick={() => setIsObsidianModalVisible(true)}
+                    shape="round"
+                  >
+                    Obsidian
                   </Button>
                 </Tooltip>
               </Space>
@@ -382,6 +427,46 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
             style={{ width: '100%', height: '100%', border: 'none' }}
           />
         </div>
+      </Modal>
+
+      <Modal
+        title="Save to Obsidian"
+        open={isObsidianModalVisible}
+        onCancel={() => setIsObsidianModalVisible(false)}
+        onOk={() => obsidianForm.submit()}
+        okText="Save"
+      >
+        <Form
+          form={obsidianForm}
+          layout="vertical"
+          onFinish={handleSaveToObsidian}
+          initialValues={{
+            folder_name: "Generated Articles",
+            file_name: generatedArticle ? `${generatedArticle.title}.md` : "Untitled.md",
+          }}
+        >
+          <Form.Item
+            name="vault_path"
+            label="Obsidian Vault Absolute Path"
+            rules={[{ required: true, message: "Please input the vault path!" }]}
+          >
+            <Input placeholder="/Users/yourname/Documents/Obsidian Vault" />
+          </Form.Item>
+          <Form.Item
+            name="folder_name"
+            label="Folder Name"
+            rules={[{ required: true, message: "Please input the folder name!" }]}
+          >
+            <Input placeholder="Generated Articles" />
+          </Form.Item>
+          <Form.Item
+            name="file_name"
+            label="File Name"
+            rules={[{ required: true, message: "Please input the file name!" }]}
+          >
+            <Input placeholder="My New Article.md" />
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   );

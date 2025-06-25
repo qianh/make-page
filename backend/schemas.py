@@ -96,6 +96,12 @@ class ObsidianVaultResponse(BaseModel):
     files: List[ObsidianFile]
     vault_name: str
 
+class ObsidianSaveRequest(BaseModel):
+    vault_path: str
+    folder_name: str
+    file_name: str
+    content: str
+
 # --- Content Analysis Models ---
 
 class KeywordTag(BaseModel):

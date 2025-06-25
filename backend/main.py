@@ -6,7 +6,7 @@ from pathlib import Path
 from schemas import (
     GenerationRequest, GeneratedContent, UserInput, LLMSelection, # For /generate endpoint
     AvailableLLMsResponse, LLMProviderInfo, LLMModelInfo, ModelCapability, # For /llms endpoint
-    ObsidianVaultRequest, ObsidianVaultResponse, ObsidianFile, # For /obsidian endpoint
+    ObsidianVaultRequest, ObsidianVaultResponse, ObsidianFile, ObsidianSaveRequest, # For /obsidian endpoint
     ContentAnalysisRequest, ContentAnalysisResponse, KeywordTag, MindMapNode, ContentSummary, ContentReference # For /content-analysis endpoint
 )
 from typing import List # Ensure List is imported if not already
@@ -180,6 +180,26 @@ async def get_obsidian_files(request: ObsidianVaultRequest):
         print(f"Error reading vault: {e}")
         raise HTTPException(status_code=500, detail="Error reading vault files")
 
+
+
+@app.post("/api/v1/obsidian/save")
+async def save_to_obsidian(request: ObsidianSaveRequest):
+    vault_path = Path(request.vault_path)
+    if not vault_path.exists() or not vault_path.is_dir():
+        raise HTTPException(status_code=404, detail="Obsidian vault path not found or is not a directory.")
+
+    folder_path = vault_path / request.folder_name
+    folder_path.mkdir(parents=True, exist_ok=True)
+
+    file_name = request.file_name if request.file_name.endswith(".md") else f"{request.file_name}.md"
+    file_path = folder_path / file_name
+
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(request.content)
+        return {"message": f"Successfully saved to {file_path}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {e}")
 
 
 @app.post("/api/v1/upload_image")
