@@ -102,6 +102,23 @@ class ObsidianSaveRequest(BaseModel):
     file_name: str
     content: str
 
+
+# --- Obsidian Directory Models ---
+
+class DirectoryItem(BaseModel):
+    title: str
+    key: str
+    children: Optional[List['DirectoryItem']] = None
+
+DirectoryItem.model_rebuild()
+
+class ObsidianDirectoryRequest(BaseModel):
+    vault_path: str
+
+class ObsidianDirectoryResponse(BaseModel):
+    directories: List[DirectoryItem]
+
+
 # --- Content Analysis Models ---
 
 class KeywordTag(BaseModel):

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Button, Card, Space, Modal, Typography, Row, Col, message, Tabs, Tooltip, Result, Input, Form } from 'antd';
+import { Button, Card, Space, Modal, Typography, Row, Col, message, Tabs, Tooltip, Result, Input, Form, Tree } from 'antd';
 import { 
   EditOutlined, 
   SaveOutlined, 
@@ -11,7 +11,8 @@ import {
   CopyOutlined,
   Html5Outlined,
   ExportOutlined,
-  BookOutlined // For Obsidian
+  BookOutlined, // For Obsidian
+  FolderOpenOutlined // For folder selection
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -28,6 +29,9 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
   const [isHtmlPreviewVisible, setIsHtmlPreviewVisible] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isObsidianModalVisible, setIsObsidianModalVisible] = useState(false);
+  const [isFolderSelectorVisible, setIsFolderSelectorVisible] = useState(false);
+  const [obsidianDirectories, setObsidianDirectories] = useState([]);
+  const [selectedFolder, setSelectedFolder] = useState("Generated Articles");
   const [obsidianForm] = Form.useForm();
   const previewRef = useRef(null);
 
@@ -215,6 +219,41 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
       obsidianForm.resetFields();
     } catch (error) {
       message.error(error.message);
+    }
+  };
+
+  const handleOpenFolderSelector = async () => {
+    try {
+      const vaultPath = await obsidianForm.getFieldValue('vault_path');
+      if (!vaultPath) {
+        message.error("Please provide the Obsidian vault path first.");
+        return;
+      }
+
+      const response = await fetch("/api/v1/obsidian/directories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vault_path: vaultPath }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to fetch directories");
+      }
+
+      const data = await response.json();
+      setObsidianDirectories(data.directories);
+      setIsFolderSelectorVisible(true);
+    } catch (error) {
+      message.error(`Error fetching directories: ${error.message}`);
+    }
+  };
+
+  const handleSelectFolder = (selectedKeys) => {
+    if (selectedKeys.length > 0) {
+      setSelectedFolder(selectedKeys[0]);
+      obsidianForm.setFieldsValue({ folder_name: selectedKeys[0] });
+      setIsFolderSelectorVisible(false);
     }
   };
 
@@ -441,7 +480,7 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
           layout="vertical"
           onFinish={handleSaveToObsidian}
           initialValues={{
-            folder_name: "Generated Articles",
+            folder_name: selectedFolder,
             file_name: generatedArticle ? `${generatedArticle.title}.md` : "Untitled.md",
           }}
         >
@@ -453,11 +492,25 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
             <Input placeholder="/Users/yourname/Documents/Obsidian Vault" />
           </Form.Item>
           <Form.Item
-            name="folder_name"
             label="Folder Name"
-            rules={[{ required: true, message: "Please input the folder name!" }]}
+            required
           >
-            <Input placeholder="Generated Articles" />
+            <Row gutter={8}>
+              <Col flex="auto">
+                <Form.Item
+                  name="folder_name"
+                  noStyle
+                  rules={[{ required: true, message: "Please select a folder!" }]}
+                >
+                  <Input placeholder="Select a folder" readOnly />
+                </Form.Item>
+              </Col>
+              <Col>
+                <Button icon={<FolderOpenOutlined />} onClick={handleOpenFolderSelector}>
+                  Select
+                </Button>
+              </Col>
+            </Row>
           </Form.Item>
           <Form.Item
             name="file_name"
@@ -467,6 +520,23 @@ const EditableOutput = ({ generatedArticle, onSave, selectedHtmlStyle = 'modern'
             <Input placeholder="My New Article.md" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Select Obsidian Folder"
+        open={isFolderSelectorVisible}
+        onCancel={() => setIsFolderSelectorVisible(false)}
+        footer={null}
+      >
+        {obsidianDirectories.length > 0 ? (
+          <Tree.DirectoryTree
+            defaultExpandAll
+            onSelect={handleSelectFolder}
+            treeData={obsidianDirectories}
+          />
+        ) : (
+          <p>No directories found or vault path not set.</p>
+        )}
       </Modal>
     </>
   );

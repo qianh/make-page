@@ -7,6 +7,7 @@ from schemas import (
     GenerationRequest, GeneratedContent, UserInput, LLMSelection, # For /generate endpoint
     AvailableLLMsResponse, LLMProviderInfo, LLMModelInfo, ModelCapability, # For /llms endpoint
     ObsidianVaultRequest, ObsidianVaultResponse, ObsidianFile, ObsidianSaveRequest, # For /obsidian endpoint
+    ObsidianDirectoryRequest, ObsidianDirectoryResponse, DirectoryItem, # For directory listing
     ContentAnalysisRequest, ContentAnalysisResponse, KeywordTag, MindMapNode, ContentSummary, ContentReference # For /content-analysis endpoint
 )
 from typing import List # Ensure List is imported if not already
@@ -180,6 +181,42 @@ async def get_obsidian_files(request: ObsidianVaultRequest):
         print(f"Error reading vault: {e}")
         raise HTTPException(status_code=500, detail="Error reading vault files")
 
+
+def scan_directories(path: Path) -> List[DirectoryItem]:
+    """Recursively scans a directory and returns a tree structure."""
+    items = []
+    for item in sorted(path.iterdir()):
+        if item.is_dir() and not item.name.startswith('.'):
+            children = scan_directories(item)
+            items.append(DirectoryItem(
+                title=item.name,
+                key=str(item.relative_to(path.parent)),
+                children=children if children else None
+            ))
+    return items
+
+@app.post("/api/v1/obsidian/directories", response_model=ObsidianDirectoryResponse)
+async def get_obsidian_directories(request: ObsidianDirectoryRequest):
+    vault_path = Path(request.vault_path)
+    if not vault_path.exists() or not vault_path.is_dir():
+        raise HTTPException(status_code=404, detail="Obsidian vault path not found or is not a directory.")
+    
+    # Adjust the key to be relative to the vault path itself
+    def scan_and_adjust_keys(path: Path, base_path: Path) -> List[DirectoryItem]:
+        items = []
+        for item in sorted(path.iterdir()):
+            if item.is_dir() and not item.name.startswith('.'):
+                relative_path = item.relative_to(base_path)
+                children = scan_and_adjust_keys(item, base_path)
+                items.append(DirectoryItem(
+                    title=item.name,
+                    key=str(relative_path),
+                    children=children if children else None
+                ))
+        return items
+
+    directories = scan_and_adjust_keys(vault_path, vault_path)
+    return ObsidianDirectoryResponse(directories=directories)
 
 
 @app.post("/api/v1/obsidian/save")

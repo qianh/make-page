@@ -41,7 +41,10 @@ The project is a monorepo containing two main parts:
     -   `components/LLMSelector.jsx`: Dynamic LLM provider and model selection with capability validation
     -   `components/ContentBlockInput.jsx`: Modal-based content block management with UUID tracking
     -   `components/EditableOutput.jsx`: Rich text editing with React-Quill and export capabilities (PDF/image via html2canvas/jsPDF)
-    -   `components/ContentAnalysisPanel.jsx`: Content analysis with keywords, mind maps, and summaries
+    -   `components/ContentAnalysisPanel.jsx`: A dedicated panel for content analysis, which includes:
+        - `KeywordTags.jsx`: Extracts and displays keywords from the content.
+        - `MindMap.jsx`: Generates and displays a visual mind map.
+        - `ContentSummary.jsx`: Provides a concise summary of the article.
     -   `components/ThemeModal.jsx`: Visual theme selection and customization
 
 ## Development
