@@ -725,22 +725,35 @@ function AppContent() {
                                 </div>
                               </div>
                             )}
-                          </Card>
 
-                          {/* 生成结果展示 */}
-                          {generatedArticle && generatedArticle.status === "success" ? (
-                            <EditableOutput 
-                              generatedArticle={generatedArticle} 
-                              onSave={handleSaveEditedContent}
-                              selectedHtmlStyle={selectedHtmlStyle}
-                            />
-                          ) : generatedArticle && generatedArticle.status === "error" ? (
-                            <Result
-                              status="error"
-                              title={generatedArticle.title}
-                              subTitle={generatedArticle.subTitle}
-                            />
-                          ) : null}
+                            {/* 生成结果展示 - 直接在AI Content Weaving面板内显示 */}
+                            {generatedArticle && generatedArticle.status === "success" && (
+                              <div style={{ 
+                                marginTop: '20px',
+                                flex: 1,
+                                display: 'flex', 
+                                flexDirection: 'column'
+                              }}>
+                                <EditableOutput 
+                                  generatedArticle={generatedArticle} 
+                                  onSave={handleSaveEditedContent}
+                                  selectedHtmlStyle={selectedHtmlStyle}
+                                  embedded={true}
+                                />
+                              </div>
+                            )}
+
+                            {/* 错误状态显示 */}
+                            {generatedArticle && generatedArticle.status === "error" && (
+                              <div style={{ marginTop: '20px' }}>
+                                <Result
+                                  status="error"
+                                  title={generatedArticle.title}
+                                  subTitle={generatedArticle.subTitle}
+                                />
+                              </div>
+                            )}
+                          </Card>
                         </div>
                       )
                     },

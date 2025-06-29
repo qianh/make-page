@@ -183,6 +183,7 @@ const ThemeModal = ({ isOpen, onClose, currentTheme, onThemeChange }) => {
             value={currentTheme}
             onChange={onThemeChange}
             size="large"
+            popupMatchSelectWidth={false}
             dropdownStyle={{
               borderRadius: '12px',
               boxShadow: '0 12px 24px rgba(0,0,0,0.15)'

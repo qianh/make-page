@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi.staticfiles import StaticFiles
 import shutil
 import os
 import time
@@ -21,6 +22,9 @@ from llm_providers.google_gemini_llm import GoogleGeminiLLMProvider
 # from llm_providers.openai_llm import OpenAILLMProvider
 
 app = FastAPI()
+
+# Mount static files for uploaded images
+app.mount("/pic", StaticFiles(directory="pic"), name="pic")
 
 # LLM Provider Factory
 SUPPORTED_PROVIDERS = {
@@ -245,7 +249,7 @@ async def upload_image(file: UploadFile = File(...)):
         # Create a unique directory using a timestamp
         timestamp = str(int(time.time() * 1000))
         # Correctly join the path for the timestamped directory
-        upload_dir = Path("backend/pic") / timestamp
+        upload_dir = Path("pic") / timestamp
         os.makedirs(upload_dir, exist_ok=True)
 
         # Define the full file path
@@ -255,9 +259,9 @@ async def upload_image(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
-        # Return the path relative to the backend directory
+        # Return the path relative to the static mount point
         # The frontend will use this to reference the image
-        relative_path = os.path.join("pic", timestamp, file.filename)
+        relative_path = os.path.join(timestamp, file.filename)
         return {"file_path": relative_path}
 
     except Exception as e:

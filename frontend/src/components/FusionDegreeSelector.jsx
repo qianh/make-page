@@ -61,7 +61,7 @@ const FusionDegreeSelector = ({
                     size="large"
                     style={{ width: '100%' }}
                     placeholder="选择融合程度"
-                    dropdownStyle={{ maxWidth: '400px' }}
+                    styles={{ dropdown: { maxWidth: '400px' } }}
                     optionLabelProp="label"
                   >
                     {fusionOptions.map(option => (

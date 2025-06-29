@@ -12,6 +12,10 @@ export default defineConfig({
         // Optional: if your backend API paths don't start with /api,
         // you might need to rewrite the path:
         // rewrite: (path) => path.replace(/^\/api/, '') 
+      },
+      '/pic': {
+        target: 'http://localhost:8000', // Proxy static image files
+        changeOrigin: true,
       }
     }
   }
